@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: architectcoach
+      POSTGRES_PASSWORD: architectcoach
+      POSTGRES_DB: architectcoach
+    ports:
+      # Host port 5433, not 5432 — this machine already runs another project's Postgres
+      # container (local-govt-reporter-ai) bound to 5432.
+      - "5433:5432"
+    volumes:
+      - architectcoach-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  architectcoach-postgres-data:

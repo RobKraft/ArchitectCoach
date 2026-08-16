@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+dist/
+.env
+.env.local
+.DS_Store
+.claude/settings.local.json
+tsconfig.tsbuildinfo
+
+# Prisma
+prisma/*.db
+
+npm-debug.log*

@@ -1,0 +1,78 @@
+// ArchitectCoach data model.
+//
+// Project.knowledge is a typed JSON document (see src/lib/knowledge/types.ts for the
+// Zod/TS shape), not a fully normalized relational schema — see
+// docs/decisions/0001-jsonb-knowledge-model-not-full-normalization.md for why.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id            String   @id @default(cuid())
+  name          String
+  oneLinePurpose String  @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // ProjectKnowledge JSON: { requirements, architecture, technology, developmentPlan }
+  knowledge     Json     @default("{}")
+
+  // { currentTopic: string, completedTopics: string[] }
+  interviewState Json    @default("{}")
+
+  decisions     DecisionRecord[]
+  messages      Message[]
+}
+
+enum DecisionSection {
+  requirements
+  architecture
+  technology
+  other
+}
+
+enum DecisionStatus {
+  proposed
+  accepted
+  superseded
+}
+
+model DecisionRecord {
+  id            String          @id @default(cuid())
+  projectId     String
+  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  number        Int
+  title         String
+  section       DecisionSection
+  decision      String
+  rationale     String
+  alternatives  String
+  tradeoffs     String
+  consequences  String
+  learnMore     String[]        @default([])
+  status        DecisionStatus  @default(accepted)
+  createdAt     DateTime        @default(now())
+
+  @@unique([projectId, number])
+}
+
+enum MessageRole {
+  user
+  assistant
+  tool
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  projectId String
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role      MessageRole
+  content   String
+  createdAt DateTime    @default(now())
+}
