@@ -75,4 +75,10 @@ model Message {
   role      MessageRole
   content   String
   createdAt DateTime    @default(now())
+
+  // Set by the pre-call moderation gate (src/lib/llm/moderation.ts) when a message
+  // was off-topic or unsafe. Blocked rows are kept for audit but excluded from the
+  // history replayed back to the model (see loadRecentHistory in src/lib/llm/context.ts).
+  blocked     Boolean @default(false)
+  blockReason String?
 }

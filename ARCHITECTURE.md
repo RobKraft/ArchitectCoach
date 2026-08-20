@@ -26,6 +26,9 @@ Next.js app (src/app/)
          │
          │  streamText({ tools: buildInterviewTools(projectId), maxSteps: 5 })
          ▼
+      classifyMessage() ──► gate model (small/cheap, via getGateModel())
+         │  blocked? short-circuit with a canned refusal, no coaching call
+         ▼
       LLM provider (Anthropic or OpenAI, via src/lib/llm/provider.ts)
          │
          │  tool calls: update_requirements / update_architecture / update_technology /
@@ -71,23 +74,31 @@ reading one file, regardless of which provider is answering.
 
 1. Developer types a message in `ChatPanel` (`src/components/ChatPanel.tsx`) and it `POST`s
    `{ message }` to `/api/projects/[id]/chat`.
-2. The route (`src/app/api/projects/[id]/chat/route.ts`) saves the user message to `Message`,
-   then loads the current `ProjectKnowledge`/`InterviewState` and the last `MAX_HISTORY_MESSAGES`
-   (10) messages — **not the full transcript** (`src/lib/llm/context.ts`). This is the app's cost
-   control: the model reasons from a compact rendered summary of current state
+2. The route (`src/app/api/projects/[id]/chat/route.ts`) runs the message through
+   `classifyMessage()` (`src/lib/llm/moderation.ts`) — a pre-call gate against a small, separately
+   configured model (see [ADR-0006](docs/decisions/0006-pre-call-moderation-gate.md)) checking
+   whether the message is on-topic for software development and safe. If either check fails, the
+   route persists the message and a canned refusal (both flagged `blocked: true` on `Message`) and
+   returns the refusal directly — the coaching model and tools never run for that turn.
+3. Otherwise, the route saves the user message to `Message`, then loads the current
+   `ProjectKnowledge`/`InterviewState` and the last `MAX_HISTORY_MESSAGES` (10) messages — **not
+   the full transcript**, and never any `blocked` rows (`src/lib/llm/context.ts`). This is the
+   app's cost control: the model reasons from a compact rendered summary of current state
    (`summarizeKnowledge()`) plus a bounded recent window, never the whole conversation.
-3. `streamText()` runs with `INTERVIEW_SYSTEM_PROMPT` (the "architectural coach" persona,
-   `src/lib/llm/systemPrompt.ts`) and the five interview tools available. The model can call tools
-   across up to 5 steps (`maxSteps: 5`) before producing its final reply.
-4. Each tool call executes immediately server-side against Postgres — e.g. `update_architecture`
+4. `streamText()` runs with `INTERVIEW_SYSTEM_PROMPT` (the "architectural coach" persona,
+   `src/lib/llm/systemPrompt.ts`, which also restates the moderation policy as defense-in-depth)
+   and the five interview tools available. The model can call tools across up to 5 steps
+   (`maxSteps: 5`) before producing its final reply.
+5. Each tool call executes immediately server-side against Postgres — e.g. `update_architecture`
    merges its patch into `Project.knowledge.architecture` (arrays are unioned, not overwritten, so
    repeated small updates accumulate); `record_decision` creates a new `DecisionRecord` with the
    next sequential `number` for that project.
-5. The route streams the model's final text back to the browser as **plain text**
+6. The route streams the model's final text back to the browser as **plain text**
    (`toTextStreamResponse()`, not the `ai` SDK's richer data-stream protocol — see
    [ADR-0003](docs/decisions/0003-provider-agnostic-llm-via-vercel-ai-sdk.md) for why), appended
-   live into the chat bubble.
-6. `onFinish` persists the assistant's full text as a `Message` row. The client calls
+   live into the chat bubble and rendered as markdown client-side (`ReactMarkdown`, same pattern as
+   `PlanPanel.tsx`).
+7. `onFinish` persists the assistant's full text as a `Message` row. The client calls
    `router.refresh()` once streaming ends, so the sidebar's progress ticks
    (`sectionCompletion()` in `src/lib/knowledge/types.ts`) and any other Server Component on the
    page reflect what the tool calls just wrote.

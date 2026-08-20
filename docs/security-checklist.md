@@ -33,6 +33,12 @@ developer's project plan (which could describe a not-yet-public product) leaves 
 infrastructure on every interview turn and every plan generation. No other third party receives
 any data in v0.1.
 
+Every raw chat message is now also sent to a second, smaller model (`getGateModel()` in
+`src/lib/llm/provider.ts`) for pre-call moderation before it ever reaches the coaching model — see
+[ADR-0006](decisions/0006-pre-call-moderation-gate.md). Same provider as the coaching model
+(Anthropic or OpenAI per `LLM_PROVIDER`), no new third party. The gate fails **closed**: if that
+call errors, the message is blocked rather than silently allowed through to the coaching model.
+
 ## Injection / untrusted input
 
 - Database queries: all through Prisma's query builder — no raw/string-concatenated SQL anywhere

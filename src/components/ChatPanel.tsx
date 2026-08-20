@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -73,16 +74,17 @@ export default function ChatPanel({
   return (
     <div className="flex h-[60vh] flex-col rounded-lg border border-stone-200 bg-white">
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`max-w-[85%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
-              m.role === "user" ? "ml-auto bg-ink text-white" : "bg-stone-100 text-stone-800"
-            }`}
-          >
-            {m.content || (m.role === "assistant" && sending ? "…" : "")}
-          </div>
-        ))}
+        {messages.map((m, i) =>
+          m.role === "user" ? (
+            <div key={i} className="ml-auto max-w-[85%] whitespace-pre-wrap rounded-lg bg-ink px-3 py-2 text-sm text-white">
+              {m.content}
+            </div>
+          ) : (
+            <div key={i} className="markdown-body max-w-[85%] rounded-lg bg-stone-100 px-3 py-2 text-sm text-stone-800">
+              {m.content ? <ReactMarkdown>{m.content}</ReactMarkdown> : sending ? "…" : ""}
+            </div>
+          )
+        )}
         <div ref={bottomRef} />
       </div>
       {error && <p className="px-4 pb-2 text-sm text-red-600">{error}</p>}

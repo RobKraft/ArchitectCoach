@@ -62,7 +62,7 @@ function listOrPlaceholder(items: string[]): string {
  */
 export async function loadRecentHistory(projectId: string): Promise<CoreMessage[]> {
   const messages = await prisma.message.findMany({
-    where: { projectId, role: { in: ["user", "assistant"] } },
+    where: { projectId, role: { in: ["user", "assistant"] }, blocked: false },
     orderBy: { createdAt: "desc" },
     take: MAX_HISTORY_MESSAGES,
   });

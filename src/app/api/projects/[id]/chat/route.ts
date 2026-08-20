@@ -5,6 +5,11 @@ import { getLanguageModel } from "@/lib/llm/provider";
 import { INTERVIEW_SYSTEM_PROMPT } from "@/lib/llm/systemPrompt";
 import { buildInterviewTools } from "@/lib/llm/interviewTools";
 import { loadKnowledgeAndState, loadRecentHistory, summarizeKnowledge } from "@/lib/llm/context";
+import { classifyMessage } from "@/lib/llm/moderation";
+
+const OFF_TOPIC_REPLY =
+  "I'm scoped to software architecture and development — that's outside what I can help with here. Tell me about the software you're building instead.";
+const UNSAFE_REPLY = "I can't help with that.";
 
 // Needs a long-lived Node runtime for streaming + Prisma; not deployable to the
 // edge runtime as-is.
@@ -22,6 +27,19 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
+  }
+
+  const gate = await classifyMessage(userMessage);
+
+  if (!gate.onTopic || !gate.safe) {
+    await prisma.message.create({
+      data: { projectId, role: "user", content: userMessage, blocked: true, blockReason: gate.reason },
+    });
+    const refusal = !gate.safe ? UNSAFE_REPLY : OFF_TOPIC_REPLY;
+    await prisma.message.create({
+      data: { projectId, role: "assistant", content: refusal, blocked: true },
+    });
+    return new Response(refusal, { headers: { "Content-Type": "text/plain" } });
   }
 
   await prisma.message.create({
@@ -60,5 +78,5 @@ export async function POST(request: Request, { params }: { params: { id: string 
     },
   });
 
-  return result.toDataStreamResponse();
+  return result.toTextStreamResponse();
 }
