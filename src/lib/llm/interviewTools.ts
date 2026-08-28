@@ -3,10 +3,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import {
   ArchitectureSchema,
+  PendingChoiceInputSchema,
   RequirementsSchema,
   TechnologySchema,
   parseInterviewState,
   parseProjectKnowledge,
+  type PendingChoice,
   type ProjectKnowledge,
 } from "@/lib/knowledge/types";
 
@@ -87,6 +89,35 @@ export function buildInterviewTools(projectId: string) {
       execute: async (patch) => {
         const knowledge = await patchKnowledge(projectId, "technology", patch);
         return { updated: knowledge.technology };
+      },
+    }),
+
+    present_choice: tool({
+      description:
+        "Present the developer with a concrete set of options for ANY question you need " +
+        "to ask — requirements, architecture, or technology alike — instead of asking an " +
+        "open-ended question. The developer picks by clicking; there is no free-text box, " +
+        "so a plain-prose question cannot be answered. Use this for every single question, " +
+        "including ones that feel open-ended (e.g. who the project is for, expected scale, " +
+        "goals, non-goals, functional requirements) as well as architecture/technology " +
+        "decisions (style, frontend, backend, database, hosting, authentication, " +
+        "third-party services, etc). Give 2-5 real, mutually exclusive options that " +
+        "actually fit what's known about this project so far. For each, write a " +
+        "one-to-two-sentence summary of what it is, and a tradeoffs note that honestly " +
+        "states what it costs as well as what it buys — never benefits-only. Mark at most " +
+        "one option recommended, and only when there's a genuinely clear best default for " +
+        "this specific project; explain why in that option's tradeoffs text.",
+      parameters: PendingChoiceInputSchema,
+      execute: async (input) => {
+        const pendingChoice: PendingChoice = {
+          ...input,
+          options: input.options.map((opt, i) => ({ ...opt, id: String(i) })),
+        };
+        await prisma.project.update({
+          where: { id: projectId },
+          data: { pendingChoice: pendingChoice as object },
+        });
+        return { presented: true };
       },
     }),
 

@@ -15,6 +15,7 @@ export function buildPlanPrompt(
   const knowledgeSummary = summarizeKnowledge(knowledge, {
     currentTopic: "",
     completedTopics: [],
+    stepIndex: 0,
   });
 
   const decisionsSummary = decisions.length

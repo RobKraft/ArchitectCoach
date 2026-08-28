@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { parseInterviewState, parseProjectKnowledge } from "@/lib/knowledge/types";
+import { parseInterviewState, parsePendingChoice, parseProjectKnowledge } from "@/lib/knowledge/types";
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const project = await prisma.project.findUnique({
@@ -17,6 +17,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       ...project,
       knowledge: parseProjectKnowledge(project.knowledge),
       interviewState: parseInterviewState(project.interviewState),
+      pendingChoice: parsePendingChoice(project.pendingChoice),
     },
   });
 }

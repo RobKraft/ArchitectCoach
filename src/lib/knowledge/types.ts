@@ -49,6 +49,9 @@ export type ProjectKnowledge = z.infer<typeof ProjectKnowledgeSchema>;
 export const InterviewStateSchema = z.object({
   currentTopic: z.string().default("getting-started"),
   completedTopics: z.array(z.string()).default([]),
+  // Index into the WIZARD_CATALOG step list for this project's type (src/lib/wizard/
+  // catalog.ts) — only meaningful for project types the static catalog covers.
+  stepIndex: z.number().int().min(0).default(0),
 });
 export type InterviewState = z.infer<typeof InterviewStateSchema>;
 
@@ -59,6 +62,46 @@ export const DECISION_SECTIONS = [
   "other",
 ] as const;
 export type DecisionSection = (typeof DECISION_SECTIONS)[number];
+
+/** A single option offered by present_choice, as the model provides it (no id yet). */
+export const ChoiceOptionInputSchema = z.object({
+  label: z.string().min(1),
+  summary: z.string().default(""),
+  tradeoffs: z.string().default(""),
+  recommended: z.boolean().default(false),
+});
+export type ChoiceOptionInput = z.infer<typeof ChoiceOptionInputSchema>;
+
+/** The same option once persisted, with a stable id the UI can key/select by. */
+export const ChoiceOptionSchema = ChoiceOptionInputSchema.extend({
+  id: z.string().min(1),
+});
+export type ChoiceOption = z.infer<typeof ChoiceOptionSchema>;
+
+export const PENDING_CHOICE_TOPICS = ["requirements", "architecture", "technology"] as const;
+export type PendingChoiceTopic = (typeof PENDING_CHOICE_TOPICS)[number];
+
+export const PendingChoiceInputSchema = z.object({
+  topic: z.enum(PENDING_CHOICE_TOPICS),
+  question: z.string().min(1),
+  options: z.array(ChoiceOptionInputSchema).min(2).max(5),
+});
+export type PendingChoiceInput = z.infer<typeof PendingChoiceInputSchema>;
+
+/**
+ * A wizard-style decision point awaiting a click, persisted on Project.pendingChoice.
+ * Set by the present_choice tool; cleared once the developer's next message is handled.
+ */
+export const PendingChoiceSchema = PendingChoiceInputSchema.extend({
+  options: z.array(ChoiceOptionSchema).min(2).max(5),
+});
+export type PendingChoice = z.infer<typeof PendingChoiceSchema>;
+
+export function parsePendingChoice(value: unknown): PendingChoice | null {
+  if (value === null || value === undefined) return null;
+  const result = PendingChoiceSchema.safeParse(value);
+  return result.success ? result.data : null;
+}
 
 export const RecordDecisionInputSchema = z.object({
   title: z.string().min(1),

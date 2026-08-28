@@ -1,38 +1,54 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import ChoiceCards from "@/components/ChoiceCards";
+import type { PendingChoice } from "@/lib/knowledge/types";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
-
-const OPENING_MESSAGE: ChatMessage = {
-  role: "assistant",
-  content:
-    "Let's design this before we build it. I'll ask you questions, explain why they matter, and help you make the decisions — you can change your mind later. Tell me a bit about what you're building: what problem does it solve, and who's it for?",
-};
 
 export default function ChatPanel({
   projectId,
   initialMessages,
+  initialPrompt,
+  initialPendingChoice,
 }: {
   projectId: string;
   initialMessages: ChatMessage[];
+  /**
+   * The project's oneLinePurpose, set from the type picker on project creation.
+   * Sent as the opening turn automatically so the developer isn't asked the same
+   * question twice.
+   */
+  initialPrompt?: string;
+  /**
+   * A question the coach has presented as click-only options (via the present_choice
+   * tool) that the developer hasn't picked yet. While this is set, the free-text input
+   * is hidden — the wizard requires a click, not typed text.
+   */
+  initialPendingChoice?: PendingChoice | null;
 }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(
-    initialMessages.length ? initialMessages : [OPENING_MESSAGE]
-  );
+  const autoStart = initialMessages.length === 0 && !!initialPrompt;
+
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingChoice, setPendingChoice] = useState<PendingChoice | null>(
+    initialPendingChoice ?? null
+  );
   const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const hasAutoSent = useRef(false);
 
-  async function send() {
-    const text = input.trim();
+  async function send(override?: string) {
+    const text = (override ?? input).trim();
     if (!text || sending) return;
     setInput("");
     setError(null);
+    setPendingChoice(null);
     setMessages((prev) => [...prev, { role: "user", content: text }, { role: "assistant", content: "" }]);
     setSending(true);
 
@@ -64,12 +80,29 @@ export default function ChatPanel({
       // Technology/Decisions — refresh so the sidebar progress ticks and other pages
       // reflect it next visit.
       router.refresh();
+
+      // The streamed text above never carries tool results (e.g. a present_choice
+      // call) — fetch the project's current pendingChoice separately to pick that up.
+      const projectRes = await fetch(`/api/projects/${projectId}`);
+      if (projectRes.ok) {
+        const { project } = await projectRes.json();
+        setPendingChoice(project.pendingChoice ?? null);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setSending(false);
     }
   }
+
+  useEffect(() => {
+    if (autoStart && !hasAutoSent.current) {
+      hasAutoSent.current = true;
+      send(initialPrompt);
+    }
+    // Fires once, on mount, for a fresh project with a known starting prompt.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex h-[60vh] flex-col rounded-lg border border-stone-200 bg-white">
@@ -87,29 +120,40 @@ export default function ChatPanel({
         )}
         <div ref={bottomRef} />
       </div>
-      {error && <p className="px-4 pb-2 text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2 border-t border-stone-200 p-3">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              send();
-            }
-          }}
-          placeholder="Type your answer…"
-          className="flex-1 rounded border border-stone-300 px-3 py-2 text-sm"
+      {pendingChoice && (
+        <ChoiceCards
+          question={pendingChoice.question}
+          options={pendingChoice.options}
+          onSelect={(opt) => send(`I choose: ${opt.label}`)}
           disabled={sending}
         />
-        <button
-          onClick={send}
-          disabled={sending || !input.trim()}
-          className="rounded bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          Send
-        </button>
-      </div>
+      )}
+      {error && <p className="px-4 pb-2 text-sm text-red-600">{error}</p>}
+      {!pendingChoice && (
+        <div className="flex gap-2 border-t border-stone-200 p-3">
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            placeholder="Type your answer…"
+            className="flex-1 rounded border border-stone-300 px-3 py-2 text-sm"
+            disabled={sending}
+          />
+          <button
+            onClick={() => send()}
+            disabled={sending || !input.trim()}
+            className="rounded bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          >
+            Send
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -26,6 +26,11 @@ model Project {
   // { currentTopic: string, completedTopics: string[] }
   interviewState Json    @default("{}")
 
+  // { topic, question, options: [{ id, label, summary, tradeoffs, recommended }] } or
+  // null when no wizard choice is currently awaiting a pick. Set by the present_choice
+  // tool; cleared as soon as the developer's next message is handled.
+  pendingChoice Json?
+
   decisions     DecisionRecord[]
   messages      Message[]
 }

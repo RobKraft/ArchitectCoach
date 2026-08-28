@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   parseInterviewState,
+  parsePendingChoice,
   parseProjectKnowledge,
   RecordDecisionInputSchema,
   sectionCompletion,
@@ -61,6 +62,34 @@ describe("sectionCompletion", () => {
     expect(completion.requirements).toBe(true);
     expect(completion.technology).toBe(true);
     expect(completion.architecture).toBe(false);
+  });
+});
+
+describe("parsePendingChoice", () => {
+  it("returns null for null or missing input", () => {
+    expect(parsePendingChoice(null)).toBeNull();
+    expect(parsePendingChoice(undefined)).toBeNull();
+  });
+
+  it("returns null for garbage that doesn't match the shape", () => {
+    expect(parsePendingChoice("not a choice")).toBeNull();
+    expect(parsePendingChoice({ topic: "technology" })).toBeNull();
+    expect(parsePendingChoice({ topic: "technology", question: "Which database?", options: [] })).toBeNull();
+  });
+
+  it("parses a valid pending choice", () => {
+    const choice = parsePendingChoice({
+      topic: "technology",
+      question: "Which database fits best?",
+      options: [
+        { id: "0", label: "PostgreSQL", summary: "Relational.", tradeoffs: "More setup.", recommended: true },
+        { id: "1", label: "MongoDB", summary: "Document store.", tradeoffs: "Weaker consistency." },
+      ],
+    });
+    expect(choice?.topic).toBe("technology");
+    expect(choice?.options).toHaveLength(2);
+    expect(choice?.options[0]?.recommended).toBe(true);
+    expect(choice?.options[1]?.recommended).toBe(false);
   });
 });
 

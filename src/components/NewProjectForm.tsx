@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PROJECT_TYPE_OPTIONS } from "@/lib/projectTypes";
 
 export default function NewProjectForm() {
-  const [name, setName] = useState("");
-  const [oneLinePurpose, setOneLinePurpose] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    if (!name.trim() || submitting) return;
+  async function createProject(name: string, oneLinePurpose: string) {
+    if (submitting) return;
     setSubmitting(true);
     setError(null);
     try {
@@ -26,35 +24,28 @@ export default function NewProjectForm() {
       router.push(`/projects/${project.id}/interview`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create project");
-    } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-lg border border-stone-200 bg-white p-4">
+    <div className="space-y-3 rounded-lg border border-stone-200 bg-white p-4">
       <h2 className="font-medium">Start a new project</h2>
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Project name"
-        className="w-full rounded border border-stone-300 px-3 py-2 text-sm"
-        required
-      />
-      <input
-        value={oneLinePurpose}
-        onChange={(e) => setOneLinePurpose(e.target.value)}
-        placeholder="One line: what are you building? (optional)"
-        className="w-full rounded border border-stone-300 px-3 py-2 text-sm"
-      />
+      <p className="text-sm text-stone-600">What are you building?</p>
+      <div className="flex flex-wrap gap-2">
+        {PROJECT_TYPE_OPTIONS.map((opt) => (
+          <button
+            key={opt.label}
+            type="button"
+            onClick={() => createProject(opt.label, opt.message)}
+            disabled={submitting}
+            className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-ink hover:text-ink disabled:opacity-50"
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {submitting ? "Creating…" : "Start"}
-      </button>
-    </form>
+    </div>
   );
 }

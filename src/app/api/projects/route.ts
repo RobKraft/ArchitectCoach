@@ -14,12 +14,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "name is required" }, { status: 400 });
   }
 
+  const oneLinePurpose = typeof body?.oneLinePurpose === "string" ? body.oneLinePurpose.trim() : "";
+  const knowledge = emptyProjectKnowledge();
+  // No AI turn runs before the wizard's first question, so seed the one piece of
+  // requirements knowledge that's already known from project creation directly.
+  knowledge.requirements.purpose = oneLinePurpose;
+
   const project = await prisma.project.create({
     data: {
       name,
-      oneLinePurpose:
-        typeof body?.oneLinePurpose === "string" ? body.oneLinePurpose.trim() : "",
-      knowledge: emptyProjectKnowledge(),
+      oneLinePurpose,
+      knowledge,
       interviewState: initialInterviewState(),
     },
   });

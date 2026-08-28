@@ -1,5 +1,6 @@
 import { streamText, type CoreMessage } from "ai";
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getLanguageModel } from "@/lib/llm/provider";
 import { INTERVIEW_SYSTEM_PROMPT } from "@/lib/llm/systemPrompt";
@@ -45,6 +46,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
   await prisma.message.create({
     data: { projectId, role: "user", content: userMessage },
   });
+
+  // Answering (or otherwise moving past) a presented choice resolves it — clear it so a
+  // stale wizard prompt can't reappear if this turn doesn't present a new one.
+  if (project.pendingChoice !== null) {
+    await prisma.project.update({
+      where: { id: projectId },
+      data: { pendingChoice: Prisma.JsonNull },
+    });
+  }
 
   const { knowledge, interviewState } = await loadKnowledgeAndState(projectId);
   // Includes the message just saved above — this is the only place full history

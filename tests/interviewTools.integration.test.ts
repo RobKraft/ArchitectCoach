@@ -73,6 +73,35 @@ describe("buildInterviewTools against real Postgres", () => {
     expect(knowledge.requirements.goals).toHaveLength(2);
   });
 
+  it("present_choice persists options with generated ids to Project.pendingChoice", async () => {
+    if (!dbAvailable) return;
+    // Cast to `any`: these tools are invoked directly here (not by the model), so the exact
+    // `ai` SDK Tool<> generic signature isn't relevant to what this test is checking.
+    const tools = buildInterviewTools(projectId) as any;
+
+    await tools.present_choice.execute(
+      {
+        topic: "technology",
+        question: "Where should this be hosted?",
+        options: [
+          { label: "Vercel", summary: "Managed platform.", tradeoffs: "Less infra control.", recommended: true },
+          { label: "AWS", summary: "Full control.", tradeoffs: "More ops overhead." },
+        ],
+      },
+      {}
+    );
+
+    const project = await prisma.project.findUniqueOrThrow({ where: { id: projectId } });
+    const pendingChoice = project.pendingChoice as {
+      topic: string;
+      options: { id: string; label: string; recommended: boolean }[];
+    };
+    expect(pendingChoice.topic).toBe("technology");
+    expect(pendingChoice.options.map((o) => o.id)).toEqual(["0", "1"]);
+    expect(pendingChoice.options[0]?.label).toBe("Vercel");
+    expect(pendingChoice.options[0]?.recommended).toBe(true);
+  });
+
   it("record_decision assigns sequential numbers per project", async () => {
     if (!dbAvailable) return;
     // Cast to `any`: these tools are invoked directly here (not by the model), so the exact
