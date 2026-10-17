@@ -1,71 +1,137 @@
 # ArchitectCoach — status / where we left off
 
-Last updated: 2026-08-20
+Last updated: 2026-09-03
 
 ## What's built
 
-The full v0.1 scope from `REQUIREMENTS.md` is implemented: project creation, the tool-calling
-interview engine, live-updating Requirements/Architecture/Technology pages, Decision Records
-(list + detail, with why/alternatives/tradeoffs/consequences/learn-more), AI-generated development
-plan, and save/resume via Postgres. Provider-agnostic LLM access (`LLM_PROVIDER=anthropic|openai`)
-is wired through `src/lib/llm/provider.ts`. A pre-call moderation gate
-(`src/lib/llm/moderation.ts`, [ADR-0006](docs/decisions/0006-pre-call-moderation-gate.md)) now
-checks every chat message for on-topic/safety before the coaching model runs, fails closed on
-error, and logs blocked attempts to `Message.blocked`/`blockReason`. Full breakdown in
-`ARCHITECTURE.md`; the reasoning behind each major choice is in `docs/decisions/` (ADR-0001
-through 0006).
+**The interview is now a click-only wizard, not a free-text chat.** Project creation
+(`NewProjectForm.tsx`) forces picking one of the 5 `PROJECT_TYPE_OPTIONS` — the "Something
+else…" free-text fallback was removed. For all 5 project types, `src/lib/wizard/catalog.ts` is a
+hand-authored, static catalog of every interview question, its options, and their tradeoffs —
+**answering the wizard makes zero AI calls**. `src/lib/wizard/applyAnswer.ts` applies a pick by
+calling the same `update_requirements`/`update_architecture`/`update_technology`/`record_decision`
+functions the (now-unused-for-these-5-types) AI interview used to call, just driven by catalog
+data instead of a model. `interview/page.tsx` picks the wizard path when
+`WIZARD_CATALOG[project.name]` exists; otherwise it falls back to the original AI-driven
+`ChatPanel` + `present_choice` tool-calling flow (kept working, but dead code for all 5 built-in
+project types now — only matters if a 6th project type is ever added without a catalog entry).
 
-## Verified vs. not yet verified
+**Two more features layered on top, built this session, not yet committed to git (see
+"Uncommitted work" below):**
 
-- **Verified for real**: `npm install`, `npx prisma generate`/`migrate dev` against a real local
-  Postgres (including the `add_message_blocked_flag` migration), `tsc --noEmit` (clean), lint
-  (clean), `npm test` (24/24 passing, including the Postgres integration tests in
-  `tests/interviewTools.integration.test.ts` and `tests/context.test.ts` — actually run against
-  real Postgres, not skipped), and `npm run build` (clean production build). The running dev
-  server was smoke-tested end to end: created a real project through the UI's API, confirmed every
-  page (`/`, overview, requirements, architecture, technology, decisions list + detail, plan)
-  returns 200 and renders real seeded data correctly, then cleaned up the test project.
-- **Note**: `docker-compose.yml` binds Postgres to host port **5433, not 5432** — this dev machine
-  already runs another project's Postgres container on 5432
-  ([local-govt-reporter-ai](../local-govt-reporter-ai)). Similarly, `npm run dev`/`start` use port
-  **3001**, since 3000 was already bound by another running service on this machine. Both are
-  noted in `.env.example`/`docker-compose.yml`/`package.json` — genuine local port conflicts, not
-  a documented design decision, so revisit if this ever runs on a machine without those conflicts.
-- **Verified against a real LLM, partially**: a real Anthropic key was added and one real interview
-  turn was run, which is how a bug was caught — the route was streaming the `ai` SDK's data-stream
-  protocol (`toDataStreamResponse()`) instead of the plain text ADR-0003 calls for, so raw protocol
-  frames were rendering as chat text. Fixed by reverting the route to `toTextStreamResponse()` and
-  the client to plain-text accumulation (`ChatPanel.tsx`), plus switching assistant messages to
-  render through `ReactMarkdown`. **Not yet re-verified live**: the moderation gate
-  (`src/lib/llm/moderation.ts`, ADR-0006) is new code with no live model call behind it yet — the
-  one real turn observed so far predates it. Re-run a live interview to confirm the gate passes
-  on-topic messages through cleanly and blocks off-topic/unsafe ones without an unhandled error.
+1. **"Discuss this with my AI"** — every wizard step (`WizardStepView.tsx`) shows a button that
+   copies a full context prompt (project purpose, decisions so far, the current question, every
+   option's tradeoffs) to the clipboard and opens a new tab to the developer's chosen AI
+   (ChatGPT/Claude.ai/Gemini, remembered via `localStorage`; "copy only" also offered). Prompt text
+   built generically in `src/lib/wizard/discussPrompt.ts` — works for all 5 project types with no
+   per-type work, since it just reads whatever `ProjectKnowledge`/`WizardStep` it's given.
+2. **Downloadable "AI Dev Kit"** — once the wizard for a project type is finished, a "Download AI
+   Dev Kit" button appears (`interview/page.tsx`'s completion panel) that streams a ZIP
+   (`src/app/api/projects/[id]/devkit/route.ts`, using `archiver`) containing coding standards,
+   testing standards, four review checklists (security/performance/cost/accessibility), Definition
+   of Done, review checklist, AI-collaboration guide, local-setup checklist, a PR template, and
+   every recorded Decision Record exported as a real numbered ADR — all **tailored with the
+   project's actual answers**, not generic boilerplate (`src/lib/devkit/generate.ts`). Content is
+   adapted from `ai-dev-kit/practices/` (this workspace's own template kit).
+   **Currently tailored for "Static website" only** — `DEVKIT_SUPPORTED_TYPES` in
+   `generate.ts` gates the download button/route to that one type; the other 4 need their own
+   tailored content written the same way before the button appears for them. Verified end-to-end
+   with a real curl smoke test: created a project, answered all 5 steps via the API, downloaded the
+   ZIP, unzipped it, confirmed all 16 files exist with correctly-tailored content (not
+   placeholders), then deleted the test project.
+
+Target audience was reframed this session to **junior developers** — nothing content-wise has
+been reworked for that yet beyond the "explain it simply" instruction baked into the discuss-AI
+prompt; the wizard's own tradeoffs text (written pre-reframe) hasn't been revisited for tone.
+
+## Uncommitted work — commit before doing anything else next session
+
+`git status` shows these are **not yet committed**:
+- `src/components/DiscussWithAI.tsx`, `src/lib/wizard/discussPrompt.ts`
+- `src/lib/devkit/` (whole folder), `src/app/api/projects/[id]/devkit/` (whole folder)
+- `tests/devkit.test.ts`, `tests/discussPrompt.test.ts`
+- Modified: `src/app/projects/[id]/interview/page.tsx`, `src/components/WizardStepView.tsx`,
+  `package.json`/`package-lock.json` (the `archiver` + `@types/archiver` dependency — pinned to
+  **v7.0.1**, not the newer v8, because v8's ESM `exports` field breaks Next.js's webpack build
+  with `Module not found: Default condition should be last one`; don't upgrade without retesting
+  `npm run build`).
+
+Everything before this (the wizard-only pivot, `present_choice`, the 5-project-type catalog) **is**
+committed and pushed — see commit `3b0b6cc` on `origin/master`
+(`RobKraft/ArchitectCoach`).
+
+## Verified this session
+
+- `tsc --noEmit`, `eslint .`, `npm run build` all clean with the new code.
+- `npm test`: **43/43 passing** (includes two new real-Postgres integration test files —
+  `wizard.integration.test.ts`, and the pre-existing `interviewTools.integration.test.ts` — plus
+  new `wizardCatalog.test.ts`, `devkit.test.ts`, `discussPrompt.test.ts`).
+- Real dev-server smoke test of the full wizard → ZIP download path (see above) — not just unit
+  tests, an actual generated file was inspected.
+
+## Deployment research this session — decisions and open questions, no code yet
+
+Nothing below has been implemented — this is context so the conversation doesn't need to be
+re-derived:
+
+- **Host**: leaning **Azure** (user preference — wants the platform experience, has an existing
+  Azure account already running a $5/month SQL Server instance for another project).
+- **App hosting decision**: recommended **Azure App Service (Linux, Basic B1, ~$13/month)** over
+  Azure Static Web Apps' free tier — SWA's Next.js "hybrid" SSR support runs your code via
+  automatically-managed Azure Functions (so it does provide real compute, contrary to SWA's
+  "just static files" reputation), but that's a compatibility-shim layer with real uncertainty
+  around full App Router support. App Service runs a literal `next start` process — same model as
+  local dev, no guessing.
+- **Database — open question, not resolved**: whether to (a) use a free-forever tier (Neon or
+  Supabase) decoupled from Azure entirely, or (b) reuse the user's existing $5/month Azure SQL
+  Server by adding this app's tables to it. Option (b) has a **real schema blocker**: `schema.prisma`'s
+  `DecisionRecord.learnMore String[]` is a native Postgres array — SQL Server has no equivalent in
+  Prisma's connector, so it would need to become a JSON string or a related table, plus a fresh
+  (non-Postgres) migration history, before this app could run on SQL Server at all. Also unresolved:
+  whether "reuse" means the *same* database (free, but shares that instance's already-below-minimum
+  resources with another app) or a *second* similarly-sized database (~another $5/month).
+- **Domain**: user already owns domain hosting via SmarterASP.NET (unlimited domains) — decided
+  there's no need to move DNS to Azure/AWS at all; just add one CNAME record at the existing
+  provider pointing to wherever the app ends up hosted. Azure Static Web Apps' free tier supports
+  custom domains at no cost; Azure DNS zones (~$0.50/month) were explicitly ruled unnecessary.
+- **Security gap, not yet addressed**: none of the API routes (`/api/projects*`) have any
+  authentication, rate limiting, or CORS configuration — confirmed by reading the code, not
+  assumed. Since the wizard itself makes zero AI calls now, the main cost-risk (someone hammering
+  `/api/projects/[id]/chat` or `/api/projects/[id]/plan`) is much smaller than before, but there's
+  still no per-user data isolation (`GET /api/projects` returns every project to anyone). Deploying
+  with **no AI API key configured** was confirmed safe (checked `provider.ts` — the key is only
+  read lazily inside the chat/plan route handlers, nothing crashes without it; only "Generate Plan"
+  would fail).
+- **DBeaver connection** (for the local dev DB, unrelated to production): host `localhost`, port
+  `5433`, database `architectcoach`, user/password `architectcoach`.
 
 ## Not yet done — pick up here
 
-1. **Re-verify live, now that the moderation gate and streaming fix have landed.** Go through an
-   actual interview and confirm: replies render as clean markdown (not raw protocol text), an
-   on-topic message flows through to the coaching model normally, an off-topic message
-   ("what's a good pasta recipe?") is refused without a `streamText` call firing, and a
-   security-architecture question (e.g. "how do I prevent SQL injection") is correctly treated as
-   on-topic rather than flagged. Also watch for the pre-existing open item: whether `update_*`/
-   `record_decision` tool calls fire at reasonable points, and whether the compact knowledge
-   summary (`src/lib/llm/context.ts`) gives the model enough context to avoid re-asking settled
-   questions — expect to tune `systemPrompt.ts` after watching it run.
-2. No CI, no deployment target — both explicitly out of scope for v0.1 (`REQUIREMENTS.md`).
-3. Once re-verified against a real model: consider whether `maxSteps: 5` in the chat route is
-   enough headroom for a turn that both records a decision and updates two knowledge sections, or
-   whether it needs raising.
+1. **Commit the uncommitted work above.**
+2. Replicate the AI Dev Kit's tailored content for the other 4 project types (Static site with a
+   blog, Site with a backend/database, Phone app, Desktop app) — same pattern as
+   `generate.ts`'s Static-website functions, then add each to `DEVKIT_SUPPORTED_TYPES`.
+3. Decide the database question above (Neon/Supabase vs. existing Azure SQL Server) before
+   actually provisioning anything for deployment.
+4. Longer-term dev-kit idea floated but deferred: a deeper tier beyond docs-only — actual Claude
+   Code `.claude/skills/*.md` files (security-review, performance-review, etc.) and/or a runnable
+   test scaffold wired to the chosen stack, with an opt-out for the latter. Explicitly not started.
+5. The original v0.1 backlog item (re-verify the AI-driven chat path live against a real model,
+   tune `maxSteps`) is now low-priority — that path is only reachable for a hypothetical 6th
+   uncataloged project type.
+6. Still no CI, no real deployment, no auth on API routes (see above).
 
 ## How to run it locally
 
 ```bash
 cd apps/ArchitectCoach
-docker compose up -d
+docker compose up -d              # Postgres on localhost:5433 (Docker Desktop must be running)
 npm install
 npx prisma migrate dev
-cp .env.example .env.local        # set LLM_PROVIDER + the matching API key
+cp .env.example .env.local        # set LLM_PROVIDER + the matching API key (optional — the
+                                   # wizard itself needs no AI key; only "Generate Plan" does)
 npm run dev                       # http://localhost:3001
 ```
 
-See `docs/local-setup-checklist.md` for the full verification checklist.
+If Docker Desktop isn't already running, start it first and wait for `docker ps` to succeed before
+`docker compose up -d`. See `docs/local-setup-checklist.md` for the full verification checklist.

@@ -3,9 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ChoiceCards, { type ChoiceCardOption } from "@/components/ChoiceCards";
+import DiscussWithAI from "@/components/DiscussWithAI";
 import type { WizardStep } from "@/lib/wizard/catalog";
 
-export default function WizardStepView({ projectId, step }: { projectId: string; step: WizardStep }) {
+export default function WizardStepView({
+  projectId,
+  step,
+  discussPrompt,
+}: {
+  projectId: string;
+  step: WizardStep;
+  discussPrompt: string;
+}) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -30,7 +39,10 @@ export default function WizardStepView({ projectId, step }: { projectId: string;
 
   return (
     <div className="rounded-lg border border-stone-200 bg-white">
-      <p className="border-b border-stone-200 p-4 text-sm text-stone-600">{step.whyItMatters}</p>
+      <div className="space-y-3 border-b border-stone-200 p-4">
+        <p className="text-sm text-stone-600">{step.whyItMatters}</p>
+        <DiscussWithAI prompt={discussPrompt} />
+      </div>
       <ChoiceCards question={step.question} options={step.options} onSelect={choose} disabled={submitting} />
       {error && <p className="px-4 pb-4 text-sm text-red-600">{error}</p>}
     </div>
