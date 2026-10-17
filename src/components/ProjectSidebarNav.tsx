@@ -28,7 +28,7 @@ export default function ProjectSidebarNav({
   const base = `/projects/${projectId}`;
 
   return (
-    <nav className="w-56 shrink-0">
+    <nav className="w-full shrink-0 md:w-56">
       <Link href="/" className="text-sm text-stone-500 hover:underline">
         ← All projects
       </Link>

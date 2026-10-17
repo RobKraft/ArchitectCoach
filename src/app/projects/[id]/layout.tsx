@@ -16,7 +16,7 @@ export default async function ProjectLayout({
   const knowledge = parseProjectKnowledge(project.knowledge);
 
   return (
-    <div className="mx-auto flex max-w-6xl gap-8 px-6 py-8">
+    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 md:flex-row md:px-6">
       <ProjectSidebarNav projectId={project.id} projectName={project.name} knowledge={knowledge} />
       <main className="min-w-0 flex-1">{children}</main>
     </div>

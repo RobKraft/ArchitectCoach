@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { parseProjectKnowledge } from "@/lib/knowledge/types";
 import { DEVKIT_SUPPORTED_TYPES, generateDevKitFiles } from "@/lib/devkit/generate";
+import { generateSpecKitFiles } from "@/lib/speckit/generate";
+import { WIZARD_CATALOG } from "@/lib/wizard/catalog";
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const project = await prisma.project.findUnique({
@@ -13,15 +15,22 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   if (!project) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
-  if (!DEVKIT_SUPPORTED_TYPES.has(project.name)) {
+  if (!WIZARD_CATALOG[project.name]) {
     return NextResponse.json(
-      { error: `The AI Dev Kit isn't tailored for project type "${project.name}" yet.` },
+      { error: `No Spec Kit is available for project type "${project.name}".` },
       { status: 400 }
     );
   }
 
+  // The Spec Kit inputs work for every wizard project type; the tailored standards docs
+  // (coding/testing standards, checklists, ADRs) exist only for DEVKIT_SUPPORTED_TYPES so far.
   const knowledge = parseProjectKnowledge(project.knowledge);
-  const files = generateDevKitFiles(project.name, knowledge, project.decisions);
+  const files = {
+    ...(DEVKIT_SUPPORTED_TYPES.has(project.name)
+      ? generateDevKitFiles(project.name, knowledge, project.decisions)
+      : {}),
+    ...generateSpecKitFiles(project.name, knowledge),
+  };
 
   const archive = archiver("zip", { zlib: { level: 9 } });
   const chunks: Buffer[] = [];
@@ -38,7 +47,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   await done;
 
   const zipBuffer = Buffer.concat(chunks);
-  const fileName = `${project.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-ai-dev-kit.zip`;
+  const fileName = `${project.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-spec-kit.zip`;
 
   return new NextResponse(zipBuffer, {
     headers: {

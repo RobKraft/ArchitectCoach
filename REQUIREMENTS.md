@@ -39,6 +39,31 @@ matter until the core experience is proven useful):
 - Change-impact analysis ("changing X affects these N other decisions").
 - Any deployment/hosting decision beyond local development.
 
+## Scope changes since v0.1 was written
+
+> **Conflict flagged:** this document still describes an AI-driven interview. The product has since
+> moved to a static, click-only wizard for all 5 built-in project types (see `STATUS.md`), so
+> functional requirements 2 and 7 below now apply only to the fallback chat path.
+
+- **Option assessments (added 2026-10-17, [ADR-0007](docs/decisions/0007-precomputed-option-assessments.md)).**
+  For every option on an architecture/technology step, the wizard answers, without any AI call:
+  How complicated is deployment? Which accounts and integrations must be managed? Ballpark monthly
+  cost (Free / ~$1 / ~$10 / ~$50 / ~$100 / $100+)? Security concerns? How scalable? Governance,
+  risk & compliance concerns? How to audit for correctness? How to stay on top of costs? What
+  performance to expect?
+  - *Acceptance:* every assessed option shows all nine answers in a "Deep dive", each step shows
+    a side-by-side comparison table, and the test suite fails if any option is missing an answer.
+  - *Not yet:* answers don't combine across choices or adapt to the developer's earlier answers,
+    and aren't copied into Decision Records.
+- **Spec Kit download (added 2026-10-17, [ADR-0008](docs/decisions/0008-spec-kit-compatible-download.md)).**
+  After finishing the wizard, any of the 5 project types can download a GitHub Spec Kit–compatible
+  kit: decisions with assessments, open questions (spec/plan phase) for the developer's own AI
+  agent to ask, inputs for each `/speckit.*` command, and `AGENTS.md` instructions to produce the
+  spec, plan, and task breakdown and then build. No AI runs on this site to produce it.
+  - *Acceptance:* the ZIP contains every kit file for all 5 types, includes only the picked
+    options' follow-up questions, and writes nothing to `.specify/` or `specs/`
+    (`tests/specKit.test.ts`).
+
 ## Functional requirements
 
 1. A developer can create a new project and immediately start an interview.

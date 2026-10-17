@@ -38,6 +38,14 @@ See [`docs/decisions/`](docs/decisions/) for the full ADRs. Summary:
 - Non-default local ports (3001 for the app, 5433 for Postgres) — this dev machine already had
   other projects/services on 3000/5432
   ([ADR-0005](docs/decisions/0005-non-default-local-ports.md)).
+- Option assessments (deployment, accounts, cost bucket, security, scalability, GRC, auditing,
+  cost monitoring, performance) are hand-written TypeScript in `src/lib/wizard/assessments/`, not
+  AI-generated or stored in the database; adding a wizard option requires writing its assessment
+  ([ADR-0007](docs/decisions/0007-precomputed-option-assessments.md)).
+- The download is a GitHub Spec Kit–compatible kit (`src/lib/speckit/`): inputs for each
+  `/speckit.*` command plus `AGENTS.md`, never files inside Spec Kit's managed paths. The
+  developer's own AI asks `open-questions.md` and writes the spec, plan, and tasks
+  ([ADR-0008](docs/decisions/0008-spec-kit-compatible-download.md)).
 - All writes during the interview go through `src/lib/llm/interviewTools.ts` — the LLM is the only
   caller; no page/route patches `Project.knowledge` or creates a `DecisionRecord` directly (see
   `ARCHITECTURE.md`'s layering rule).

@@ -1,3 +1,6 @@
+import type { OptionAssessment } from "@/lib/wizard/assessments/types";
+import OptionAssessmentView from "@/components/OptionAssessmentView";
+
 export type ChoiceCardOption = {
   id: string;
   label: string;
@@ -11,11 +14,14 @@ export default function ChoiceCards({
   options,
   onSelect,
   disabled,
+  assessments,
 }: {
   question: string;
   options: ChoiceCardOption[];
   onSelect: (option: ChoiceCardOption) => void;
   disabled: boolean;
+  /** Pre-written deep-dive answers keyed by option id (wizard steps only). */
+  assessments?: Record<string, OptionAssessment>;
 }) {
   return (
     <div className="space-y-3 border-t border-stone-200 p-4">
@@ -38,6 +44,7 @@ export default function ChoiceCards({
                 <p className="mt-1">{opt.tradeoffs}</p>
               </details>
             )}
+            {assessments?.[opt.id] && <OptionAssessmentView assessment={assessments[opt.id]!} />}
             <button
               type="button"
               onClick={() => onSelect(opt)}

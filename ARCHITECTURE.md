@@ -37,6 +37,51 @@ Next.js app (src/app/)
       src/lib/llm/interviewTools.ts ──writes──► Postgres (Project.knowledge, DecisionRecord)
 ```
 
+## The static wizard and option assessments (current primary path)
+
+> **Doc drift:** the walkthrough further down describes the AI chat interview, which is now only a
+> fallback for a project type with no wizard catalog. All 5 built-in project types use the static
+> wizard below (see `STATUS.md`).
+
+```
+interview/page.tsx (Server Component)
+  ├── WIZARD_CATALOG[project.name][stepIndex]     src/lib/wizard/catalog.ts
+  ├── getStepAssessments(step.id)                 src/lib/wizard/assessments/
+  │     (only the current step's entries are sent to the browser)
+  ▼
+WizardStepView (client)
+  ├── AssessmentCompareTable   complexity · accounts · cost bucket · scalability, per option
+  └── ChoiceCards ─► OptionAssessmentView ("Deep dive": all nine dimensions)
+        │ pick
+        ▼
+  POST /api/projects/[id]/wizard/answer ─► applyAnswer.ts ─► interviewTools.ts ─► Postgres
+```
+
+Every option on an architecture/technology step has a hand-written `OptionAssessment`: deployment
+complexity, accounts & integrations to manage, ballpark cost bucket, security, scalability, GRC,
+auditing for correctness, cost monitoring, and performance. It's static TypeScript content, so
+answering any of these questions makes **no AI call and no database read**
+([ADR-0007](docs/decisions/0007-precomputed-option-assessments.md)).
+`tests/optionAssessments.test.ts` enforces that every option has a complete entry.
+
+### The downloadable Spec Kit
+
+Once the wizard is finished, `GET /api/projects/[id]/devkit` streams a ZIP that works with GitHub
+Spec Kit ([ADR-0008](docs/decisions/0008-spec-kit-compatible-download.md)):
+
+```
+Project.knowledge ─► resolveWizardChoices()  (src/lib/wizard/resolveChoices.ts — label → step/option)
+        │
+        ├─► getStepAssessments()             decisions.md, constitution-input.md, tech-context.md
+        ├─► openQuestions.ts                  open-questions.md (universal + type + per-option)
+        └─► speckit/generate.ts               AGENTS.md, CLAUDE.md, copilot-instructions, START-HERE
+        + devkit/generate.ts (Static website only: tailored standards + ADRs under docs/)
+```
+
+Nothing is written into Spec Kit's managed paths. The kit gives inputs to each `/speckit.*`
+command, and the developer's own AI agent asks the open questions and writes the spec, plan, and
+tasks. No AI call happens on this site.
+
 ## The core data model
 
 `Project.knowledge` (JSONB) holds the structured **project knowledge model** — this is the

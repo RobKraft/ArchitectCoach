@@ -23,3 +23,6 @@ superseded one — mark it "Superseded by ADR-00XX" instead, so the history stay
 | [0003](0003-provider-agnostic-llm-via-vercel-ai-sdk.md) | Provider-agnostic LLM access via the Vercel AI SDK | Accepted |
 | [0004](0004-docker-compose-postgres-only.md) | Local dev: Postgres in Docker Compose, app runs on host | Accepted |
 | [0005](0005-non-default-local-ports.md) | Non-default local ports (app 3001, Postgres 5433) | Accepted |
+| [0006](0006-pre-call-moderation-gate.md) | Pre-call moderation gate for interview chat messages | Accepted |
+| [0007](0007-precomputed-option-assessments.md) | Pre-written option assessments in TypeScript, not AI-generated or database-stored | Accepted |
+| [0008](0008-spec-kit-compatible-download.md) | Downloadable kit feeds GitHub Spec Kit; the developer's own AI finishes the spec | Accepted |

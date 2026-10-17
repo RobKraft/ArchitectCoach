@@ -4,16 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ChoiceCards, { type ChoiceCardOption } from "@/components/ChoiceCards";
 import DiscussWithAI from "@/components/DiscussWithAI";
+import AssessmentCompareTable from "@/components/AssessmentCompareTable";
 import type { WizardStep } from "@/lib/wizard/catalog";
+import type { OptionAssessment } from "@/lib/wizard/assessments/types";
 
 export default function WizardStepView({
   projectId,
   step,
   discussPrompt,
+  assessments,
 }: {
   projectId: string;
   step: WizardStep;
   discussPrompt: string;
+  assessments?: Record<string, OptionAssessment>;
 }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +47,14 @@ export default function WizardStepView({
         <p className="text-sm text-stone-600">{step.whyItMatters}</p>
         <DiscussWithAI prompt={discussPrompt} />
       </div>
-      <ChoiceCards question={step.question} options={step.options} onSelect={choose} disabled={submitting} />
+      {assessments && <AssessmentCompareTable options={step.options} assessments={assessments} />}
+      <ChoiceCards
+        question={step.question}
+        options={step.options}
+        onSelect={choose}
+        disabled={submitting}
+        assessments={assessments}
+      />
       {error && <p className="px-4 pb-4 text-sm text-red-600">{error}</p>}
     </div>
   );

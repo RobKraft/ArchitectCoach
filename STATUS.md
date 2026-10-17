@@ -1,6 +1,6 @@
 # ArchitectCoach — status / where we left off
 
-Last updated: 2026-09-03
+Last updated: 2026-10-17
 
 ## What's built
 
@@ -44,21 +44,48 @@ Target audience was reframed this session to **junior developers** — nothing c
 been reworked for that yet beyond the "explain it simply" instruction baked into the discuss-AI
 prompt; the wizard's own tradeoffs text (written pre-reframe) hasn't been revisited for tone.
 
-## Uncommitted work — commit before doing anything else next session
+## Added 2026-10-17: option assessments
 
-`git status` shows these are **not yet committed**:
-- `src/components/DiscussWithAI.tsx`, `src/lib/wizard/discussPrompt.ts`
-- `src/lib/devkit/` (whole folder), `src/app/api/projects/[id]/devkit/` (whole folder)
-- `tests/devkit.test.ts`, `tests/discussPrompt.test.ts`
-- Modified: `src/app/projects/[id]/interview/page.tsx`, `src/components/WizardStepView.tsx`,
-  `package.json`/`package-lock.json` (the `archiver` + `@types/archiver` dependency — pinned to
-  **v7.0.1**, not the newer v8, because v8's ESM `exports` field breaks Next.js's webpack build
-  with `Module not found: Default condition should be last one`; don't upgrade without retesting
-  `npm run build`).
+Every option on an architecture/technology step (60 options) now answers nine architect questions
+with no AI call: deployment complexity, accounts & integrations to manage, ballpark cost bucket,
+security, scalability, GRC, auditing for correctness, cost monitoring, performance. Content is
+hand-written TypeScript in `src/lib/wizard/assessments/` (one file per project type); UI is a
+compare table plus a per-option "Deep dive" (`AssessmentCompareTable.tsx`,
+`OptionAssessmentView.tsx`). See [ADR-0007](docs/decisions/0007-precomputed-option-assessments.md).
+Also fixed the project layout on phones — the sidebar used to squeeze the main column to ~70px;
+it now stacks above the content below the `md` breakpoint.
 
-Everything before this (the wizard-only pivot, `present_choice`, the 5-project-type catalog) **is**
-committed and pushed — see commit `3b0b6cc` on `origin/master`
+Verified: `tsc --noEmit` and `eslint` clean; `npm test` **47/47** (new
+`tests/optionAssessments.test.ts` enforces complete coverage); dev-server check of the
+backend-site architecture step (compare table and deep dive render; phone width has no page-level
+horizontal scroll), with the temporary test project deleted afterward. `npm run build` not re-run.
+
+## Added 2026-10-17: Spec Kit download
+
+The completion panel's button is now **"Download Spec Kit"** and works for **all 5 project
+types** (before, only Static website had a download). The ZIP is GitHub Spec Kit–compatible:
+`SPEC-KIT-START-HERE.md`, `AGENTS.md` (+ `CLAUDE.md`, `.github/copilot-instructions.md`), and
+`architectcoach/{decisions,open-questions,constitution-input,feature-brief,tech-context}.md`.
+Static website also still gets the tailored standards/ADRs under `docs/`. Code:
+`src/lib/speckit/`, `src/lib/wizard/resolveChoices.ts`. See [ADR-0008](docs/decisions/0008-spec-kit-compatible-download.md).
+Also rewrote ~15 assessment texts that only made sense next to the other options ("Same as a
+monolith") so each stands alone in the generated constitution.
+
+Verified: tsc and eslint clean; `npm test` **59/59** (new `tests/specKit.test.ts`); live
+dev-server test that created Phone app and Static website projects, answered every step via the
+API, downloaded and unzipped both ZIPs, read the generated files, then deleted both projects.
+**Not verified:** running the kit through a real `specify init` + AI agent session.
+
+## Git state
+
+Everything above is committed locally on `master` (2026-10-17) and **not yet pushed**: the
+"Discuss with AI" + AI Dev Kit work, then option assessments + Spec Kit download as a second
+commit. The previous commit, `3b0b6cc` (wizard-only pivot), is on `origin/master`
 (`RobKraft/ArchitectCoach`).
+
+`archiver` is pinned to **v7.0.1**, not v8: v8's ESM `exports` field breaks Next.js's webpack
+build with `Module not found: Default condition should be last one`. Don't upgrade without
+retesting `npm run build`.
 
 ## Verified this session
 
@@ -107,7 +134,7 @@ re-derived:
 
 ## Not yet done — pick up here
 
-1. **Commit the uncommitted work above.**
+1. **Push `master`** (two local commits, see "Git state").
 2. Replicate the AI Dev Kit's tailored content for the other 4 project types (Static site with a
    blog, Site with a backend/database, Phone app, Desktop app) — same pattern as
    `generate.ts`'s Static-website functions, then add each to `DEVKIT_SUPPORTED_TYPES`.
@@ -120,6 +147,13 @@ re-derived:
    tune `maxSteps`) is now low-priority — that path is only reachable for a hypothetical 6th
    uncataloged project type.
 6. Still no CI, no real deployment, no auth on API routes (see above).
+7. Option assessments follow-ups: review cost buckets against current vendor pricing and bump
+   `ASSESSMENTS_AS_OF`; copy the chosen option's assessment into its Decision Record and the Dev
+   Kit ADRs; flag incompatible combinations across steps (e.g. serverless hosting + SQLite).
+8. Spec Kit follow-ups: do one real run (`specify init --here --integration claude`, then "Read
+   AGENTS.md and start") and fix whatever the agent stumbles on; decide whether to remove or
+   demote the AI "Generate plan" button now that planning moves to the developer's agent; write
+   tailored standards for the other 4 types (item 2).
 
 ## How to run it locally
 
