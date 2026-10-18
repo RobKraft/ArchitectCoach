@@ -76,12 +76,29 @@ dev-server test that created Phone app and Static website projects, answered eve
 API, downloaded and unzipped both ZIPs, read the generated files, then deleted both projects.
 **Not verified:** running the kit through a real `specify init` + AI agent session.
 
+## Added 2026-10-18: .NET rewrite approved; Phase 0 and 2a
+
+- **Plan approved:** [docs/plans/dotnet-blazor-rewrite.md](docs/plans/dotnet-blazor-rewrite.md),
+  covering ASP.NET Core 10 Blazor static rendering + SQL Server on SmarterASP, Identity email +
+  password, server-enforced project ownership with tests, GDPR/CCPA features, and WCAG 2.2 AA.
+  Local Postgres data was wiped (not ported).
+- **Phase 0 (hosting check):** `dotnet/HostingProbe/` is a key-protected probe that reports the
+  .NET runtime, SQL Server version/JSON support, and HTTPS, and sends a test email to a
+  configured address. Built and tested locally; **not yet run on SmarterASP.** The owner follows
+  [docs/plans/phase0-hosting-checklist.md](docs/plans/phase0-hosting-checklist.md). Dependency
+  note: pinned `System.Security.Cryptography.Pkcs` 10.0.13 because MailKit and SqlClient pull a
+  vulnerable 10.0.0.
+- **Phase 2a (done):** every Spec Kit now includes `architectcoach/privacy-and-accessibility.md`;
+  the constitution always has *Privacy by design* and *Accessible by default*; there are 6 new
+  universal open questions (user location, PII inventory, children, tracking/selling,
+  accessibility standard, a11y testing); and AGENTS.md requires a PII inventory and accessibility
+  test approach in the plan. `npm test` 63/63; a Desktop app kit was checked live.
+
 ## Git state
 
-Everything above is committed locally on `master` (2026-10-17) and **not yet pushed**: the
-"Discuss with AI" + AI Dev Kit work, then option assessments + Spec Kit download as a second
-commit. The previous commit, `3b0b6cc` (wizard-only pivot), is on `origin/master`
-(`RobKraft/ArchitectCoach`).
+`b1c2ffb` (Discuss with AI + Dev Kit) and `fc871a4` (assessments + Spec Kit) are pushed to
+`origin/master` (`RobKraft/ArchitectCoach`), as is the 2026-10-18 commit with the rewrite plan,
+Phase 0 probe, and Phase 2a content. `.claude/launch.json` is deliberately left uncommitted.
 
 `archiver` is pinned to **v7.0.1**, not v8: v8's ESM `exports` field breaks Next.js's webpack
 build with `Module not found: Default condition should be last one`. Don't upgrade without
@@ -134,7 +151,8 @@ re-derived:
 
 ## Not yet done — pick up here
 
-1. **Push `master`** (two local commits, see "Git state").
+1. **Run Phase 0 on SmarterASP** ([checklist](docs/plans/phase0-hosting-checklist.md)) and record
+   the results in the rewrite plan; then start Phase 1.
 2. Replicate the AI Dev Kit's tailored content for the other 4 project types (Static site with a
    blog, Site with a backend/database, Phone app, Desktop app) — same pattern as
    `generate.ts`'s Static-website functions, then add each to `DEVKIT_SUPPORTED_TYPES`.

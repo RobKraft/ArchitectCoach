@@ -52,6 +52,31 @@ export const UNIVERSAL_QUESTIONS: OpenQuestion[] = [
   },
   {
     phase: "spec",
+    question: "Where will your users be — EU/UK, California or other US states, elsewhere?",
+    whyItMatters: "Decides which privacy laws apply (GDPR, CCPA and similar state laws) and whether international data transfers need covering in the privacy notice.",
+  },
+  {
+    phase: "spec",
+    question: "List every piece of personal data you'll collect, and for each: why, and how long you'll keep it.",
+    whyItMatters: "This becomes the PII inventory. Each field needs a purpose, a retention period, and a deletion path; anything without a purpose shouldn't be collected.",
+  },
+  {
+    phase: "spec",
+    question: "Could children (under 16) use it?",
+    whyItMatters: "Children's data brings parental-consent rules (GDPR, COPPA in the US). Most projects state a minimum age and don't target children.",
+  },
+  {
+    phase: "spec",
+    question: "Will you use analytics, advertising, or tracking cookies or pixels, or sell or share personal data with anyone?",
+    whyItMatters: "Tracking needs opt-in consent in the EU/UK; selling or sharing triggers CCPA's \"Do Not Sell or Share\" obligations.",
+  },
+  {
+    phase: "spec",
+    question: "Which accessibility standard will you meet (WCAG 2.2 AA is recommended), and do any users rely on assistive technology you know of?",
+    whyItMatters: "Accessibility is required in many places (ADA, the European Accessibility Act) and far cheaper to build in than to retrofit.",
+  },
+  {
+    phase: "spec",
     question: "What would 'wrong' look like — which errors would hurt users most, and how should they be caught?",
     whyItMatters: "Defines how you audit for correctness: which tests, validations, and alerts matter most.",
   },
@@ -74,6 +99,11 @@ export const UNIVERSAL_QUESTIONS: OpenQuestion[] = [
     phase: "plan",
     question: "Who gets alerted when the site/app breaks or costs spike, and how (email, Slack, SMS)?",
     whyItMatters: "Monitoring without a recipient is just logging — this wires auditing and cost monitoring to a person.",
+  },
+  {
+    phase: "plan",
+    question: "How will accessibility be tested — which automated tools, and which screen readers and devices for the manual pass?",
+    whyItMatters: "Automated tools catch only about a third of issues; naming the manual checks puts them in the task list instead of leaving them to chance.",
   },
   {
     phase: "plan",

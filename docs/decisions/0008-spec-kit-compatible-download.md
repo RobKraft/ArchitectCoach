@@ -32,6 +32,12 @@ wizard project types (`src/lib/speckit/generate.ts`):
   interviews the developer one question at a time, records answers, runs constitution → specify
   → clarify → plan → tasks → analyze → implement, stops for review after each step, and falls back
   to writing `specs/001-first-release/{spec,plan,tasks}.md` itself if Spec Kit isn't installed.
+- `architectcoach/privacy-and-accessibility.md` (added 2026-10-18,
+  `src/lib/speckit/privacyAccessibility.ts`): PII inventory template, GDPR and CCPA checklists,
+  privacy items specific to each project type, a WCAG 2.2 AA checklist adapted to web, phone, or
+  desktop, the test approach, and the legal context (ADA Title II/III, Section 508, European
+  Accessibility Act). The constitution always includes *Privacy by design* and *Accessible by
+  default*, whatever options were picked.
 - `SPEC-KIT-START-HERE.md`: human steps (`uv tool install specify-cli`,
   `specify init --here --integration <agent>`, then "Read AGENTS.md and start").
 

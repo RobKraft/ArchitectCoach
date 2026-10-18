@@ -4,6 +4,7 @@ import { WIZARD_CATALOG } from "@/lib/wizard/catalog";
 import { resolveWizardChoices } from "@/lib/wizard/resolveChoices";
 import { collectOpenQuestions, generateSpecKitFiles } from "@/lib/speckit/generate";
 import { OPTION_QUESTIONS, PROJECT_TYPE_QUESTIONS } from "@/lib/speckit/openQuestions";
+import { PROJECT_TYPE_PLATFORM, buildPrivacyAccessibility } from "@/lib/speckit/privacyAccessibility";
 
 /** Builds knowledge the same way applyAnswer.ts does, picking option index `pick` (clamped) at every step. */
 function answeredKnowledge(projectType: string, pick: number, purpose = "A test project"): ProjectKnowledge {
@@ -27,6 +28,7 @@ const SPEC_KIT_FILES = [
   "architectcoach/constitution-input.md",
   "architectcoach/feature-brief.md",
   "architectcoach/tech-context.md",
+  "architectcoach/privacy-and-accessibility.md",
 ];
 
 describe("resolveWizardChoices", () => {
@@ -98,5 +100,44 @@ describe("open-question catalog", () => {
       Object.values(WIZARD_CATALOG).flatMap((steps) => steps.flatMap((s) => s.options.map((o) => `${s.id}/${o.id}`)))
     );
     for (const key of Object.keys(OPTION_QUESTIONS)) expect(valid.has(key), `unknown option key ${key}`).toBe(true);
+  });
+});
+
+describe("privacy and accessibility content", () => {
+  const types = Object.keys(WIZARD_CATALOG);
+
+  it("maps every wizard project type to a platform and type-specific privacy items", () => {
+    expect(Object.keys(PROJECT_TYPE_PLATFORM).sort()).toEqual([...types].sort());
+    for (const type of types) {
+      const doc = buildPrivacyAccessibility(type);
+      const specific = doc.split(`### Specific to a ${type.toLowerCase()}`)[1]?.split("## Part 2")[0] ?? "";
+      expect(specific.match(/- \[ \]/g)?.length ?? 0, `${type} has no type-specific privacy items`).toBeGreaterThan(0);
+    }
+  });
+
+  it("tailors the accessibility checklist to the platform", () => {
+    expect(buildPrivacyAccessibility("Site with a backend/database")).toContain("Accessible authentication (3.3.8)");
+    expect(buildPrivacyAccessibility("Phone app")).toContain("VoiceOver");
+    expect(buildPrivacyAccessibility("Phone app")).toContain("Data safety");
+    expect(buildPrivacyAccessibility("Desktop app")).toContain("UI Automation");
+  });
+
+  it("covers GDPR, CCPA, the PII inventory, and accessibility law in every kit", () => {
+    for (const type of types) {
+      const doc = buildPrivacyAccessibility(type);
+      for (const needle of ["GDPR checklist", "CCPA checklist", "PII inventory", "WCAG 2.2 AA", "ADA Title III", "European Accessibility Act", "not legal advice"]) {
+        expect(doc, `${type} missing "${needle}"`).toContain(needle);
+      }
+    }
+  });
+
+  it("makes privacy and accessibility binding in every constitution and in AGENTS.md", () => {
+    for (const type of types) {
+      const files = generateSpecKitFiles(type, answeredKnowledge(type, 0));
+      expect(files["architectcoach/constitution-input.md"]).toContain("## 4. Privacy by design");
+      expect(files["architectcoach/constitution-input.md"]).toContain("## 5. Accessible by default");
+      expect(files["AGENTS.md"]).toContain("PII inventory");
+      expect(files["architectcoach/open-questions.md"]).toContain("Where will your users be");
+    }
   });
 });

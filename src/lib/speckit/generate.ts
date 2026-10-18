@@ -12,6 +12,7 @@ import {
   UNIVERSAL_QUESTIONS,
   type OpenQuestion,
 } from "@/lib/speckit/openQuestions";
+import { buildPrivacyAccessibility } from "@/lib/speckit/privacyAccessibility";
 
 /**
  * Builds the GitHub Spec Kit–compatible part of the downloadable kit. Deliberately writes
@@ -62,6 +63,7 @@ export function generateSpecKitFiles(projectType: string, knowledge: ProjectKnow
     [`${DIR}/constitution-input.md`]: buildConstitutionInput(projectType, choices),
     [`${DIR}/feature-brief.md`]: buildFeatureBrief(projectType, knowledge),
     [`${DIR}/tech-context.md`]: buildTechContext(choices),
+    [`${DIR}/privacy-and-accessibility.md`]: buildPrivacyAccessibility(projectType),
   };
 }
 
@@ -85,6 +87,7 @@ ArchitectCoach already settled the big architecture choices. Your AI agent will 
 | \`${DIR}/constitution-input.md\` | Input for \`/speckit.constitution\` — your project's non-negotiable principles. |
 | \`${DIR}/feature-brief.md\` | Input for \`/speckit.specify\` — what you're building and why (no tech details). |
 | \`${DIR}/tech-context.md\` | Input for \`/speckit.plan\` — the technology already chosen. |
+| \`${DIR}/privacy-and-accessibility.md\` | PII inventory, GDPR/CCPA checklists, and the WCAG 2.2 AA checklist for this kind of project. Required, not optional. |
 
 ## Steps
 
@@ -148,6 +151,10 @@ with GitHub Spec Kit, then build it. Act as a patient architecture coach, not ju
 5. Keep explanations plain — the developer may be early in their career.
 6. If a \`docs/\` folder exists (coding and testing standards, checklists, Definition of Done,
    ADRs), its rules apply to the plan, the tasks, and every line of code you write.
+7. **Privacy and accessibility are requirements.** Follow \`${DIR}/privacy-and-accessibility.md\`.
+   Collect only the personal data the spec needs. Every UI task's "done" check includes a
+   keyboard check and an automated accessibility check (WCAG 2.2 AA). Every task that stores
+   personal data names its retention period and how it gets deleted.
 
 ## Process
 
@@ -163,6 +170,9 @@ with GitHub Spec Kit, then build it. Act as a patient architecture coach, not ju
 6. **Plan.** Run \`/speckit.plan\` with \`${DIR}/tech-context.md\` plus the answered plan questions.
    Check the plan against the security, compliance, cost, and auditing notes in
    \`${DIR}/decisions.md\` and add anything missing (budget alerts, monitoring, backups).
+   The plan must include a filled-in **PII inventory** (template in
+   \`${DIR}/privacy-and-accessibility.md\`), how each GDPR/CCPA right that applies will be met,
+   and the **accessibility test approach**.
 7. **Tasks.** Run \`/speckit.tasks\`. Each task should be small enough to finish and verify in one
    sitting and have a clear "done" check.
 8. **Analyze.** Run \`/speckit.analyze\` if available, and fix any inconsistencies it reports.
@@ -275,8 +285,8 @@ function buildConstitutionInput(projectType: string, choices: Assessed[]): strin
   return `# Constitution input — ${projectType}
 
 Give this to \`/speckit.constitution\`, together with the answers to the budget, compliance,
-sensitive-data, and performance questions in \`open-questions.md\`. These are the principles every
-spec, plan, and task must respect.
+sensitive-data, user-location, accessibility, and performance questions in \`open-questions.md\`.
+These are the principles every spec, plan, and task must respect.
 
 ## 1. The architecture decisions are binding
 
@@ -294,25 +304,39 @@ without a stated reason tied to a requirement.
 Each task has a "done" check — an automated test where practical, otherwise a written manual
 check. Nothing is done until its check passes.
 
-## 4. Security
+## 4. Privacy by design
+
+Collect the minimum personal data the spec requires. Every personal-data field has a stated
+purpose, a retention period, and a deletion path, all recorded in the PII inventory. Users can
+see, export, and delete their data where privacy law (GDPR, CCPA) applies. No tracking or
+advertising cookies without opt-in consent. Never log personal data, passwords, or tokens.
+Details: \`privacy-and-accessibility.md\`.
+
+## 5. Accessible by default
+
+Every user interface meets **WCAG 2.2 AA**. Accessibility is part of "done" for every UI task:
+keyboard operable, screen-reader labeled, sufficient contrast, and checked with automated tools
+plus a manual pass. Details: \`privacy-and-accessibility.md\`.
+
+## 6. Security
 
 ${fromEach((a) => a.security)}
 
-## 5. Governance, risk & compliance
+## 7. Governance, risk & compliance
 
 ${fromEach((a) => a.grc)}
 
-## 6. Cost guardrails
+## 8. Cost guardrails
 
 Set a budget alert on every paid account at the monthly limit from \`open-questions.md\`.
 
 ${fromEach((a) => a.costMonitoring)}
 
-## 7. Auditing for correctness
+## 9. Auditing for correctness
 
 ${fromEach((a) => a.auditing)}
 
-## 8. Performance
+## 10. Performance
 
 ${fromEach((a) => a.performance)}
 `;

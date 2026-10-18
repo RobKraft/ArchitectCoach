@@ -63,6 +63,9 @@ matter until the core experience is proven useful):
   - *Acceptance:* the ZIP contains every kit file for all 5 types, includes only the picked
     options' follow-up questions, and writes nothing to `.specify/` or `specs/`
     (`tests/specKit.test.ts`).
+  - Every kit includes `privacy-and-accessibility.md` (PII inventory, GDPR/CCPA, WCAG 2.2 AA per
+    platform, ADA/EAA context), and its constitution always makes privacy by design and
+    accessible-by-default binding (added 2026-10-18).
 
 ## Functional requirements
 
