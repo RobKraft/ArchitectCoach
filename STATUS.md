@@ -122,11 +122,36 @@ Identity, EF Core + SQL Server), `tests/ArchitectCoach.IntegrationTests` (18 tes
   (Phase 4); the nav menu still links the removed sample pages (Phase 2b); a11y issues in template
   pages such as the "Remember me" checkbox labeled "True" (Phase 5).
 
+## Added 2026-10-18: Phase 2b of the .NET rewrite (content + wizard)
+
+- **Content export:** `scripts/export-content.ts` writes the TypeScript wizard catalog,
+  assessments, open questions, and privacy/accessibility guidance to
+  `dotnet/src/ArchitectCoach.Web/Content/*.json` (embedded resources, loaded by
+  `ContentCatalog`). Nothing was retyped. Re-run it if the TypeScript content changes before
+  the Next.js app is retired.
+- **Wizard:** `WizardService` (port of applyAnswer.ts + the knowledge merge) and `DiscussPrompt`.
+  `StepIndex` is an EF concurrency token, so two tabs can't double-answer a step.
+- **Pages** (Blazor static SSR, plain form posts): home, `/projects` (list + create),
+  overview, interview (compare table, nine-dimension deep dive, "second opinion from your own
+  AI" copy box), requirements/architecture/technology, decision records + detail. Top
+  navigation with a skip link replaces the template sidebar (its inline onclick broke under the
+  CSP).
+- **Tests:** 13 unit (content completeness, wizard logic) + 29 integration. New
+  `ProjectAccessTests`: another user gets 404 on every project page and can't answer someone
+  else's wizard even with a valid antiforgery token (same response as a nonexistent project, so
+  ids can't be probed); posted `OwnerId` is ignored; stale answers change nothing; the full
+  wizard runs over HTTP for all 5 types.
+- **Bug found by those tests:** decision records were never saved (an EF entity with a preset
+  Guid key, added through a navigation, was treated as existing). Fixed by adding through the DbSet.
+- **Browser check:** register → confirm → sign in → create project → answer to the architecture
+  step; compare table and deep dives render; no CSP violations; phone width has no horizontal
+  scroll and 44px buttons. Test account deleted afterward, and its project cascaded with it.
+
 ## Git state
 
 `b1c2ffb` (Discuss with AI + Dev Kit) and `fc871a4` (assessments + Spec Kit) are pushed to
 `origin/master` (`RobKraft/ArchitectCoach`), as is `62d1c3d` (rewrite plan, Phase 0 probe,
-Phase 2a content) and the Phase 1 commit (.NET skeleton + security).
+Phase 2a content) and the Phase 1 commit (.NET skeleton + security). Phase 2b (content + wizard) is committed and pushed too.
 `.claude/launch.json` is deliberately left uncommitted.
 
 `archiver` is pinned to **v7.0.1**, not v8: v8's ESM `exports` field breaks Next.js's webpack
@@ -180,7 +205,7 @@ re-derived:
 
 ## Not yet done — pick up here
 
-1. **Phase 2b of the .NET rewrite** (content + wizard). Run the Phase 0 probe on SmarterASP before launch ([checklist](docs/plans/phase0-hosting-checklist.md)) and record
+1. **Phase 3 of the .NET rewrite** (Spec Kit + Dev Kit ZIP download). Run the Phase 0 probe on SmarterASP before launch ([checklist](docs/plans/phase0-hosting-checklist.md)) and record
    the results in the rewrite plan.
 2. Replicate the AI Dev Kit's tailored content for the other 4 project types (Static site with a
    blog, Site with a backend/database, Phone app, Desktop app) — same pattern as

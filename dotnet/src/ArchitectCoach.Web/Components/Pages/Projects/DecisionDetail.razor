@@ -1,0 +1,36 @@
+@page "/projects/{Id:guid}/decisions/{Number:int}"
+@inherits ProjectPageBase
+@using ArchitectCoach.Web.Domain
+
+@if (Project is not null && decision is not null)
+{
+    <PageTitle>@decision.Title · ArchitectCoach</PageTitle>
+    <div class="project-shell">
+        <ProjectNav Project="Project" Active="decisions" />
+        <article>
+            <p class="mb-1"><a href="@ProjectUrl("decisions")">&larr; All decisions</a></p>
+            <h1>ADR-@decision.Number.ToString("0000"): @decision.Title</h1>
+            <p class="muted">@decision.Section · @decision.CreatedAt.ToString("MMM d, yyyy")</p>
+            <dl class="card-panel">
+                <dt>Decision</dt><dd>@decision.Decision</dd>
+                <dt>Why</dt><dd>@decision.Rationale</dd>
+                <dt>Alternatives considered</dt><dd>@decision.Alternatives</dd>
+                <dt>Tradeoffs</dt><dd>@decision.Tradeoffs</dd>
+                <dt>Consequences</dt><dd>@(string.IsNullOrWhiteSpace(decision.Consequences) ? "None recorded." : decision.Consequences)</dd>
+            </dl>
+        </article>
+    </div>
+}
+
+@code {
+    [Parameter] public int Number { get; set; }
+
+    private DecisionRecord? decision;
+
+    protected override Task OnProjectLoadedAsync()
+    {
+        decision = Project!.Decisions.SingleOrDefault(d => d.Number == Number);
+        if (decision is null) Nav.NotFound();
+        return Task.CompletedTask;
+    }
+}

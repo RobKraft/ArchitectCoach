@@ -1,0 +1,43 @@
+@using ArchitectCoach.Web.Domain
+
+<nav class="project-nav" aria-label="Project sections">
+    <p class="mb-0"><a href="projects">&larr; All projects</a></p>
+    <p class="h5 mt-2 mb-0">@Project.ProjectType</p>
+    @if (!string.IsNullOrWhiteSpace(Project.Purpose))
+    {
+        <p class="small muted mb-0">@Project.Purpose</p>
+    }
+    <ul>
+        @foreach (var (key, label, done) in Sections())
+        {
+            <li>
+                <a href="@(key.Length == 0 ? $"projects/{Project.Id}" : $"projects/{Project.Id}/{key}")"
+                   aria-current="@(Active == key ? "page" : null)">
+                    <span>@label</span>
+                    @if (done is not null)
+                    {
+                        <span>@(done.Value ? "✓" : "")<span class="visually-hidden">@(done.Value ? " (has content)" : " (empty)")</span></span>
+                    }
+                </a>
+            </li>
+        }
+    </ul>
+</nav>
+
+@code {
+    [Parameter, EditorRequired] public Project Project { get; set; } = default!;
+
+    /// <summary>"" for overview, otherwise the route segment (interview, requirements, ...).</summary>
+    [Parameter] public string Active { get; set; } = "";
+
+    private IEnumerable<(string Key, string Label, bool? Done)> Sections()
+    {
+        var k = Project.Knowledge;
+        yield return ("", "Overview", null);
+        yield return ("interview", "Interview", null);
+        yield return ("requirements", "Requirements", k.Requirements.Users.Count > 0 || k.Requirements.Goals.Count > 0);
+        yield return ("architecture", "Architecture", k.Architecture.Style.Length > 0);
+        yield return ("technology", "Technology", k.Technology.Hosting.Length > 0 || k.Technology.Database.Length > 0 || k.Technology.Backend.Length > 0);
+        yield return ("decisions", "Decision records", Project.Decisions.Count > 0);
+    }
+}

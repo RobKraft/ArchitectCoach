@@ -1,0 +1,12 @@
+@* Level/cost badges. The text carries the meaning; color only reinforces it (WCAG 1.4.1). *@
+
+<span class="ac-badge ac-badge-@Tone">@Text</span>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = "";
+    [Parameter] public string Tone { get; set; } = "medium";
+
+    public static string ComplexityTone(string level) => level switch { "Low" => "good", "High" => "bad", _ => "medium" };
+    public static string ScalabilityTone(string level) => level switch { "High" => "good", "Low" => "bad", _ => "medium" };
+    public static string CostTone(string bucket) => bucket switch { "Free" or "~$1/mo" => "good", "~$10/mo" => "medium", _ => "bad" };
+}

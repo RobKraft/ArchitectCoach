@@ -1,60 +1,152 @@
+/* ArchitectCoach site styles (on top of Bootstrap). Colors meet WCAG 2.2 AA contrast. */
+
+:root {
+    --ac-ink: #1c1917;
+    --ac-muted: #57534e;
+    --ac-paper: #faf9f7;
+    --ac-border: #d6d3d1;
+    --ac-link: #0b5cad;
+    --ac-focus: #1d4ed8;
+}
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ac-ink);
+    background: var(--ac-paper);
 }
 
-a, .btn-link {
-    color: #006bb7;
+a, .btn-link { color: var(--ac-link); }
+
+/* Visible focus for keyboard users (WCAG 2.4.7 / 2.4.11). */
+:focus-visible {
+    outline: 3px solid var(--ac-focus);
+    outline-offset: 2px;
+}
+main:focus { outline: none; }
+h1:focus { outline: none; }
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    background: #fff;
+    padding: .5rem 1rem;
+}
+.skip-link:focus { left: 1rem; }
+
+.site-header {
+    background: #fff;
+    border-bottom: 1px solid var(--ac-border);
+}
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem 1.5rem;
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+}
+.site-brand {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--ac-ink);
+    text-decoration: none;
+}
+.site-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+.site-links a { text-decoration: none; }
+.site-links a.active { font-weight: 600; text-decoration: underline; }
+.site-link-button { padding: 0; vertical-align: baseline; text-decoration: none; }
+
+/* Project pages: sidebar + content, stacking on narrow screens. */
+.project-shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+@media (min-width: 768px) {
+    .project-shell { grid-template-columns: 14rem 1fr; }
+}
+.project-nav ul { list-style: none; padding: 0; margin: .75rem 0 0; }
+.project-nav li a {
+    display: flex;
+    justify-content: space-between;
+    padding: .4rem .5rem;
+    border-radius: .25rem;
+    text-decoration: none;
+    color: var(--ac-ink);
+}
+.project-nav li a[aria-current="page"] { background: #e7e5e4; font-weight: 600; }
+
+.card-panel {
+    background: #fff;
+    border: 1px solid var(--ac-border);
+    border-radius: .5rem;
+    padding: 1rem;
+}
+.muted { color: var(--ac-muted); }
+
+/* Wizard option cards. */
+.option-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+@media (min-width: 640px) {
+    .option-grid { grid-template-columns: 1fr 1fr; }
+}
+.option-card {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    background: #fff;
+    border: 1px solid var(--ac-border);
+    border-radius: .5rem;
+    padding: 1rem;
+}
+.option-card .btn { margin-top: auto; min-height: 44px; }
+.option-card details summary { cursor: pointer; font-weight: 600; }
+.option-card dl { margin: .5rem 0 0; }
+.option-card dt { margin-top: .5rem; }
+
+/* Status badges: text always carries the meaning; color is secondary (WCAG 1.4.1). */
+.ac-badge {
+    display: inline-block;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: .1rem .55rem;
+    font-size: .8rem;
+    font-weight: 600;
+}
+.ac-badge-good { background: #d1fae5; color: #065f46; }
+.ac-badge-medium { background: #fef3c7; color: #7c2d12; }
+.ac-badge-bad { background: #fee2e2; color: #991b1b; }
+.ac-badge-recommended { background: #dbeafe; color: #1e3a8a; }
+
+.compare-table { min-width: 560px; }
+.compare-table th[scope="row"] { font-weight: 600; }
+
+.discuss-prompt {
+    width: 100%;
+    min-height: 8rem;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: .85rem;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
+/* Template form validation styles. */
+.valid.modified:not([type=checkbox]) { outline: 1px solid #26b050; }
+.invalid { outline: 1px solid #b91c1c; }
+.validation-message { color: #b91c1c; }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-.content {
-    padding-top: 1.1rem;
-}
-
-h1:focus {
-    outline: none;
-}
-
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
-}
-
-.invalid {
-    outline: 1px solid #e50000;
-}
-
-.validation-message {
-    color: #e50000;
-}
-
-.blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
-    padding: 1rem 1rem 1rem 3.7rem;
-    color: white;
-}
-
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
-
-.darker-border-checkbox.form-check-input {
-    border-color: #929292;
-}
-
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-    color: var(--bs-secondary-color);
-    text-align: end;
-}
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-    text-align: start;
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }

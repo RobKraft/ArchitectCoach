@@ -1,0 +1,121 @@
+@page "/projects/{Id:guid}/interview"
+@inherits ProjectPageBase
+@using ArchitectCoach.Web.Content
+@using ArchitectCoach.Web.Services
+@inject WizardService Wizard
+
+@if (Project is not null)
+{
+    <PageTitle>Interview · @Project.ProjectType · ArchitectCoach</PageTitle>
+    <div class="project-shell">
+        <ProjectNav Project="Project" Active="interview" />
+        <div>
+            <h1>Interview</h1>
+
+            @if (message is not null)
+            {
+                <div class="alert alert-warning" role="alert">@message</div>
+            }
+
+            @if (CurrentStep is { } step)
+            {
+                var assessments = Content.AssessmentsFor(step.Id);
+                <p class="muted">Question @(Project.StepIndex + 1) of @Steps.Count. Pick the option closest to your project. Each one shows its tradeoffs first.</p>
+
+                <section class="card-panel mb-3" aria-labelledby="why-heading">
+                    <h2 id="why-heading" class="h5">@step.Question</h2>
+                    <p class="mb-2">@step.WhyItMatters</p>
+                    <details>
+                        <summary>Get a second opinion from your own AI</summary>
+                        <p class="small mt-2">Copy this prompt into the AI chat tool you use. Nothing is sent from this site.</p>
+                        <label for="discuss-prompt" class="visually-hidden">Prompt to copy</label>
+                        <textarea id="discuss-prompt" class="discuss-prompt form-control" readonly rows="8">@DiscussPrompt.Build(Project, Project.Decisions, step)</textarea>
+                        <p class="d-flex flex-wrap gap-2 align-items-center mt-2 mb-0">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-copy-target="discuss-prompt">Copy prompt</button>
+                            <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT<span class="visually-hidden"> (new tab)</span></a>
+                            <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer">Open Claude<span class="visually-hidden"> (new tab)</span></a>
+                            <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Open Gemini<span class="visually-hidden"> (new tab)</span></a>
+                            <span role="status" class="small" data-copy-status></span>
+                        </p>
+                    </details>
+                </section>
+
+                @if (assessments is not null)
+                {
+                    <CompareTable Options="step.Options" Assessments="assessments" AsOf="@Content.Assessments.AsOf" />
+                }
+
+                <form method="post" @formname="answer" @onsubmit="AnswerAsync">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="StepId" value="@step.Id" />
+                    <fieldset>
+                        <legend class="h5">@step.Question</legend>
+                        <div class="option-grid">
+                            @foreach (var option in step.Options)
+                            {
+                                <div class="option-card">
+                                    <h3 class="h6 mb-0">@option.Label</h3>
+                                    @if (option.Recommended)
+                                    {
+                                        <span><Badges Text="Recommended" Tone="recommended" /></span>
+                                    }
+                                    <p class="mb-0">@option.Summary</p>
+                                    <details>
+                                        <summary>Tradeoffs</summary>
+                                        <p class="mt-1 mb-0">@option.Tradeoffs</p>
+                                    </details>
+                                    @if (assessments is not null && assessments.TryGetValue(option.Id, out var a))
+                                    {
+                                        <DeepDive A="a" />
+                                    }
+                                    <button type="submit" name="OptionId" value="@option.Id" class="btn btn-primary">
+                                        Choose<span class="visually-hidden"> @option.Label</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </fieldset>
+                </form>
+            }
+            else
+            {
+                <section class="card-panel" aria-labelledby="done-heading">
+                    <h2 id="done-heading" class="h5">You've answered every question</h2>
+                    <p>Review what was captured in Requirements, Architecture, Technology, and Decision records.</p>
+                    <p class="mb-0"><a class="btn btn-primary" href="@ProjectUrl("decisions")">Review your decisions</a></p>
+                </section>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private string? message;
+
+    [SupplyParameterFromForm(FormName = "answer")] private string? StepId { get; set; }
+    [SupplyParameterFromForm(FormName = "answer")] private string? OptionId { get; set; }
+
+    private WizardStep? CurrentStep => Project is not null && Project.StepIndex < Steps.Count ? Steps[Project.StepIndex] : null;
+
+    private async Task AnswerAsync()
+    {
+        if (Project is null) return; // already a 404
+
+        switch (await Wizard.ApplyAnswerAsync(Id, StepId ?? "", OptionId ?? ""))
+        {
+            case AnswerResult.ProjectNotFound:
+                Nav.NotFound();
+                return;
+            case AnswerResult.NotCurrentStep:
+                message = "That question was already answered (perhaps in another tab). Here's the current one.";
+                return;
+            case AnswerResult.UnknownOption:
+                message = "Please choose one of the options below.";
+                return;
+            default:
+                // Post/Redirect/Get, so refreshing doesn't resubmit the answer.
+                Nav.NavigateTo(ProjectUrl("interview"));
+                return;
+        }
+    }
+}

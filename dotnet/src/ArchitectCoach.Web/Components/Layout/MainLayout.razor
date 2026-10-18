@@ -1,17 +1,11 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<a class="skip-link" href="#main">Skip to main content</a>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+<header class="site-header">
+    <NavMenu />
+</header>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<main id="main" tabindex="-1" class="container py-4">
+    @Body
+</main>

@@ -1,0 +1,453 @@
+{
+  "universal": [
+    {
+      "phase": "spec",
+      "question": "What are the 3–5 most important things a user does, start to finish?",
+      "whyItMatters": "Each becomes a user story with acceptance criteria — the backbone of spec.md and the task list."
+    },
+    {
+      "phase": "spec",
+      "question": "What is explicitly NOT in the first release?",
+      "whyItMatters": "Writing down non-goals is the cheapest way to stop scope creep and keep the task list short."
+    },
+    {
+      "phase": "spec",
+      "question": "How will you know the first release worked — what number or observable outcome?",
+      "whyItMatters": "Turns 'done' into something testable and tells you what to measure after launch."
+    },
+    {
+      "phase": "spec",
+      "question": "Roughly how many users or visitors per month in the first year, and what's the busiest moment likely to be?",
+      "whyItMatters": "Drives scalability and cost: it decides whether free tiers are enough and what to load-test."
+    },
+    {
+      "phase": "spec",
+      "question": "What's the most you're willing to spend per month on hosting and services before you want to be alerted?",
+      "whyItMatters": "Becomes the budget alert threshold on every paid account — the main defense against surprise bills."
+    },
+    {
+      "phase": "spec",
+      "question": "What personal or sensitive data will you store or process (emails, payment info, health, location, children's data)?",
+      "whyItMatters": "Sets the security baseline and decides which privacy obligations apply."
+    },
+    {
+      "phase": "spec",
+      "question": "Which laws, policies, or standards apply — GDPR/UK GDPR, CCPA, HIPAA, accessibility (WCAG), app-store policies, your company's policies?",
+      "whyItMatters": "Governance, risk & compliance requirements are far cheaper to design in than to retrofit."
+    },
+    {
+      "phase": "spec",
+      "question": "Where will your users be — EU/UK, California or other US states, elsewhere?",
+      "whyItMatters": "Decides which privacy laws apply (GDPR, CCPA and similar state laws) and whether international data transfers need covering in the privacy notice."
+    },
+    {
+      "phase": "spec",
+      "question": "List every piece of personal data you'll collect, and for each: why, and how long you'll keep it.",
+      "whyItMatters": "This becomes the PII inventory. Each field needs a purpose, a retention period, and a deletion path; anything without a purpose shouldn't be collected."
+    },
+    {
+      "phase": "spec",
+      "question": "Could children (under 16) use it?",
+      "whyItMatters": "Children's data brings parental-consent rules (GDPR, COPPA in the US). Most projects state a minimum age and don't target children."
+    },
+    {
+      "phase": "spec",
+      "question": "Will you use analytics, advertising, or tracking cookies or pixels, or sell or share personal data with anyone?",
+      "whyItMatters": "Tracking needs opt-in consent in the EU/UK; selling or sharing triggers CCPA's \"Do Not Sell or Share\" obligations."
+    },
+    {
+      "phase": "spec",
+      "question": "Which accessibility standard will you meet (WCAG 2.2 AA is recommended), and do any users rely on assistive technology you know of?",
+      "whyItMatters": "Accessibility is required in many places (ADA, the European Accessibility Act) and far cheaper to build in than to retrofit."
+    },
+    {
+      "phase": "spec",
+      "question": "What would 'wrong' look like — which errors would hurt users most, and how should they be caught?",
+      "whyItMatters": "Defines how you audit for correctness: which tests, validations, and alerts matter most."
+    },
+    {
+      "phase": "spec",
+      "question": "What speed is acceptable — page/screen load and action response times on a typical device and connection?",
+      "whyItMatters": "Gives performance a concrete target the plan and tests can check against."
+    },
+    {
+      "phase": "plan",
+      "question": "Which environments do you need (local, preview/staging, production), and who is allowed to deploy to production?",
+      "whyItMatters": "Shapes the deployment pipeline and the access-control part of the plan."
+    },
+    {
+      "phase": "plan",
+      "question": "Who owns each account (hosting, domain, third-party services), and where will credentials and secrets be stored?",
+      "whyItMatters": "Every component is an account someone must secure, pay for, and hand over if they leave."
+    },
+    {
+      "phase": "plan",
+      "question": "Who gets alerted when the site/app breaks or costs spike, and how (email, Slack, SMS)?",
+      "whyItMatters": "Monitoring without a recipient is just logging — this wires auditing and cost monitoring to a person."
+    },
+    {
+      "phase": "plan",
+      "question": "How will accessibility be tested — which automated tools, and which screen readers and devices for the manual pass?",
+      "whyItMatters": "Automated tools catch only about a third of issues; naming the manual checks puts them in the task list instead of leaving them to chance."
+    },
+    {
+      "phase": "plan",
+      "question": "Is there a deadline, and how many people (and AI agents) are building this?",
+      "whyItMatters": "Decides how finely tasks are split and which can run in parallel."
+    }
+  ],
+  "byProjectType": {
+    "Static website": [
+      {
+        "phase": "spec",
+        "question": "List every page and what each must contain.",
+        "whyItMatters": "The sitemap is the spec for a static site — each page becomes one or more tasks."
+      },
+      {
+        "phase": "spec",
+        "question": "Who writes and updates content, and how often?",
+        "whyItMatters": "Decides whether editing Markdown/HTML is acceptable or a friendlier editing workflow is needed."
+      },
+      {
+        "phase": "spec",
+        "question": "Does the site need a contact or signup form, and where should submissions go?",
+        "whyItMatters": "A static site can't process forms itself — this adds a third-party service and a privacy disclosure."
+      },
+      {
+        "phase": "plan",
+        "question": "Do you already own the domain, and who manages its DNS?",
+        "whyItMatters": "DNS access is needed to go live and is a frequent last-minute blocker."
+      }
+    ],
+    "Static site with a blog": [
+      {
+        "phase": "spec",
+        "question": "How are posts organized — categories, tags, series — and what does a post page show?",
+        "whyItMatters": "Defines URL structure and the templates to build."
+      },
+      {
+        "phase": "spec",
+        "question": "How many authors, and is there a draft → review → publish workflow?",
+        "whyItMatters": "Decides whether git-based publishing is workable or authors need a CMS UI."
+      },
+      {
+        "phase": "spec",
+        "question": "Do readers need RSS, an email newsletter, or both?",
+        "whyItMatters": "Newsletters add a vendor and personal-data handling; RSS is free."
+      },
+      {
+        "phase": "plan",
+        "question": "Are there existing posts to migrate, and do old URLs need redirects?",
+        "whyItMatters": "Broken old links lose search ranking — redirects must be part of the plan."
+      }
+    ],
+    "Site with a backend/database": [
+      {
+        "phase": "spec",
+        "question": "What are the main things the system stores (e.g. users, orders, posts) and how do they relate?",
+        "whyItMatters": "Becomes the data model — the hardest thing to change later."
+      },
+      {
+        "phase": "spec",
+        "question": "What roles exist, and what can each role see and do?",
+        "whyItMatters": "Authorization rules are a top source of security bugs; writing them down makes them testable."
+      },
+      {
+        "phase": "spec",
+        "question": "Which outside services must it integrate with (payments, email, maps, other APIs)?",
+        "whyItMatters": "Each integration is an account, a cost line, a failure mode, and often a data processor."
+      },
+      {
+        "phase": "spec",
+        "question": "How long must data be kept, and how are deletion and export requests handled?",
+        "whyItMatters": "Retention and deletion are core privacy-law obligations once you hold personal data."
+      },
+      {
+        "phase": "plan",
+        "question": "Does anything need to run in the background or on a schedule (emails, imports, reports)?",
+        "whyItMatters": "Background jobs need their own hosting, retries, and monitoring."
+      },
+      {
+        "phase": "plan",
+        "question": "How much data could you afford to lose (minutes? a day?), and how fast must you recover?",
+        "whyItMatters": "Sets backup frequency and the restore procedure you must test."
+      }
+    ],
+    "Phone app": [
+      {
+        "phase": "spec",
+        "question": "List the main screens and how users move between them.",
+        "whyItMatters": "The screen map is the skeleton of the spec and the task list."
+      },
+      {
+        "phase": "spec",
+        "question": "What must work offline, and what happens when the connection returns?",
+        "whyItMatters": "Offline behavior changes data storage and sync design significantly."
+      },
+      {
+        "phase": "spec",
+        "question": "Which device features are needed (camera, location, contacts, biometrics)?",
+        "whyItMatters": "Each needs a permission prompt, a privacy-label entry, and a store-review justification."
+      },
+      {
+        "phase": "plan",
+        "question": "Which platforms and minimum OS versions must be supported?",
+        "whyItMatters": "Determines testing effort and which APIs are available."
+      },
+      {
+        "phase": "plan",
+        "question": "How will beta testing work (TestFlight, Play internal testing), and how are crashes reported?",
+        "whyItMatters": "Store review delays mean bugs must be caught before release."
+      },
+      {
+        "phase": "plan",
+        "question": "How will you force or encourage updates when an old app version breaks?",
+        "whyItMatters": "Old versions stay installed for months; the backend must handle them or block them."
+      }
+    ],
+    "Desktop app": [
+      {
+        "phase": "spec",
+        "question": "Which operating systems and versions must be supported?",
+        "whyItMatters": "Each OS adds build, signing, and test work."
+      },
+      {
+        "phase": "spec",
+        "question": "Which files, folders, or other apps does it need to work with?",
+        "whyItMatters": "File associations and OS integrations affect permissions, sandboxing, and installers."
+      },
+      {
+        "phase": "spec",
+        "question": "Can users install software themselves, or will IT deploy it (admin rights, managed devices)?",
+        "whyItMatters": "Corporate environments often block per-user installers and require MSI/PKG packages."
+      },
+      {
+        "phase": "plan",
+        "question": "How will you get code-signing certificates, and who holds the signing keys?",
+        "whyItMatters": "Unsigned apps trigger security warnings; leaked keys let attackers sign malware as you."
+      },
+      {
+        "phase": "plan",
+        "question": "Will the app send crash reports or usage telemetry, and how do users consent?",
+        "whyItMatters": "Telemetry is how you audit correctness in the field — and it's personal data."
+      }
+    ]
+  },
+  "byOption": {
+    "static-website-build-approach/1": [
+      {
+        "phase": "plan",
+        "question": "Which generator — Eleventy, Hugo, Jekyll, or another — and which theme, if any?",
+        "whyItMatters": "The wizard chose the category; the plan needs the specific tool."
+      }
+    ],
+    "static-website-build-approach/2": [
+      {
+        "phase": "plan",
+        "question": "Astro or Next.js static export (or another framework)?",
+        "whyItMatters": "Astro ships less JavaScript by default; Next.js suits a later move to server rendering."
+      }
+    ],
+    "static-website-hosting/3": [
+      {
+        "phase": "plan",
+        "question": "Who patches the server and renews TLS certificates, and how is the site deployed from git?",
+        "whyItMatters": "Traditional hosting has no automatic deploys or patching unless you set them up."
+      }
+    ],
+    "static-website-analytics/2": [
+      {
+        "phase": "plan",
+        "question": "Which consent tool will you use, and which visitor regions need a consent banner?",
+        "whyItMatters": "Google Analytics uses cookies — EU/UK visitors need consent before tracking."
+      }
+    ],
+    "blog-build-approach/0": [
+      {
+        "phase": "plan",
+        "question": "Which generator and theme?",
+        "whyItMatters": "The wizard chose the category; the plan needs the specific tool."
+      }
+    ],
+    "blog-build-approach/1": [
+      {
+        "phase": "spec",
+        "question": "What content types and fields does the CMS need (post, author, category, image fields)?",
+        "whyItMatters": "This is the CMS content model — the equivalent of a database schema."
+      },
+      {
+        "phase": "plan",
+        "question": "Which headless CMS, and how does publishing trigger a rebuild?",
+        "whyItMatters": "The webhook between CMS and host is the most common silent failure."
+      }
+    ],
+    "blog-build-approach/2": [
+      {
+        "phase": "plan",
+        "question": "Which plugins are must-haves, and who keeps them updated?",
+        "whyItMatters": "Plugins are the main security risk on WordPress-style platforms."
+      }
+    ],
+    "blog-comments/2": [
+      {
+        "phase": "spec",
+        "question": "What's the moderation policy — pre-approval, reporting, spam filtering?",
+        "whyItMatters": "Custom comments make you responsible for abuse and spam handling."
+      }
+    ],
+    "backend-site-architecture/2": [
+      {
+        "phase": "plan",
+        "question": "How will the API be versioned, and which origins are allowed by CORS?",
+        "whyItMatters": "Two deployables must stay compatible; CORS mistakes either break the app or open it up."
+      }
+    ],
+    "backend-site-architecture/3": [
+      {
+        "phase": "plan",
+        "question": "What are the service boundaries, and which service owns which data?",
+        "whyItMatters": "Unclear ownership is the main way microservices turn into a distributed monolith."
+      }
+    ],
+    "backend-site-database/2": [
+      {
+        "phase": "plan",
+        "question": "What are the main document shapes, and which queries must be fast?",
+        "whyItMatters": "Document databases are designed around access patterns, not normalization."
+      }
+    ],
+    "backend-site-database/3": [
+      {
+        "phase": "plan",
+        "question": "Will the host give you a persistent disk, and how is the database file backed up?",
+        "whyItMatters": "SQLite needs a persistent disk — most serverless hosts don't have one."
+      }
+    ],
+    "backend-site-auth/0": [
+      {
+        "phase": "spec",
+        "question": "What are the password rules, and are MFA, account lockout, and email verification required?",
+        "whyItMatters": "Building auth yourself means specifying every one of these flows."
+      }
+    ],
+    "backend-site-auth/1": [
+      {
+        "phase": "plan",
+        "question": "Which auth provider, and which login methods (email, social, passkeys)?",
+        "whyItMatters": "Providers differ in free-tier limits and supported methods."
+      }
+    ],
+    "backend-site-auth/2": [
+      {
+        "phase": "spec",
+        "question": "Which social providers (Google, GitHub, Microsoft, Apple)?",
+        "whyItMatters": "Users without one of these accounts can't sign in."
+      }
+    ],
+    "backend-site-auth/3": [
+      {
+        "phase": "spec",
+        "question": "When will logins be needed, and which pages and actions must stay public?",
+        "whyItMatters": "Without auth, every write endpoint needs rate limiting and must hold no private data."
+      }
+    ],
+    "backend-site-hosting/0": [
+      {
+        "phase": "plan",
+        "question": "Where does the database run relative to the function region, and will you use connection pooling?",
+        "whyItMatters": "Serverless functions far from the database, or without pooling, are slow and exhaust connections."
+      }
+    ],
+    "backend-site-hosting/3": [
+      {
+        "phase": "plan",
+        "question": "Which specific cloud services (compute, database, secrets), and which infrastructure-as-code tool?",
+        "whyItMatters": "The big clouds offer many options — the plan must name them."
+      }
+    ],
+    "phone-app-architecture/1": [
+      {
+        "phase": "plan",
+        "question": "React Native (with or without Expo) or Flutter?",
+        "whyItMatters": "The wizard chose the category; the plan needs the specific framework."
+      }
+    ],
+    "phone-app-backend/1": [
+      {
+        "phase": "plan",
+        "question": "Which backend service, and who can read and write each table or collection (security rules)?",
+        "whyItMatters": "With a backend-as-a-service, security rules are your only access control."
+      }
+    ],
+    "phone-app-backend/2": [
+      {
+        "phase": "plan",
+        "question": "How long will old app versions be supported by the API?",
+        "whyItMatters": "Mobile users don't update promptly — the API must stay backward compatible."
+      }
+    ],
+    "phone-app-auth/2": [
+      {
+        "phase": "plan",
+        "question": "Which identity provider, and is mobile device management (MDM) required?",
+        "whyItMatters": "Corporate SSO usually comes with distribution and device-policy requirements."
+      }
+    ],
+    "phone-app-push/1": [
+      {
+        "phase": "spec",
+        "question": "Which events trigger a notification, and when do you ask for permission?",
+        "whyItMatters": "Asking too early gets denied; each notification type is a spec item."
+      }
+    ],
+    "phone-app-push/2": [
+      {
+        "phase": "spec",
+        "question": "Which events trigger a notification, who can send marketing messages, and how do users opt out?",
+        "whyItMatters": "Marketing messages need consent and an opt-out."
+      }
+    ],
+    "desktop-app-architecture/1": [
+      {
+        "phase": "plan",
+        "question": "Electron or Tauri?",
+        "whyItMatters": "Tauri is much lighter and safer by default; Electron has the larger ecosystem."
+      }
+    ],
+    "desktop-app-storage/1": [
+      {
+        "phase": "plan",
+        "question": "Must the local data be encrypted, and can users export or back it up?",
+        "whyItMatters": "Local data is only as safe as the user's disk and backups."
+      }
+    ],
+    "desktop-app-storage/2": [
+      {
+        "phase": "spec",
+        "question": "What should happen when the same item is edited on two devices while offline?",
+        "whyItMatters": "The conflict rule is a product decision, not just a technical one."
+      }
+    ],
+    "desktop-app-distribution/1": [
+      {
+        "phase": "plan",
+        "question": "Which stores, and does store sandboxing block any feature you need?",
+        "whyItMatters": "Mac App Store sandboxing in particular restricts file and system access."
+      }
+    ],
+    "desktop-app-distribution/2": [
+      {
+        "phase": "plan",
+        "question": "Where is the update feed hosted, and how will you stage rollouts and pull a bad release?",
+        "whyItMatters": "The update channel can push code to every user — it needs a careful release process."
+      }
+    ],
+    "desktop-app-auth/2": [
+      {
+        "phase": "plan",
+        "question": "Which identity provider, and what happens when a token expires while offline?",
+        "whyItMatters": "Desktop apps are often used offline; the expiry behavior must be decided."
+      }
+    ]
+  }
+}

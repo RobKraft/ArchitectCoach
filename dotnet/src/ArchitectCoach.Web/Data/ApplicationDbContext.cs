@@ -30,6 +30,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             p.Property(x => x.OwnerId).IsRequired().HasMaxLength(450);
             p.Property(x => x.ProjectType).IsRequired().HasMaxLength(100);
             p.Property(x => x.Purpose).HasMaxLength(500);
+            // Two tabs answering the same step: the second save fails instead of double-applying.
+            p.Property(x => x.StepIndex).IsConcurrencyToken();
             p.HasIndex(x => x.OwnerId);
             p.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
             p.OwnsOne(x => x.Knowledge, k =>

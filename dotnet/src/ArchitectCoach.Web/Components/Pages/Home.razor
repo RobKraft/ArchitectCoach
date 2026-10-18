@@ -1,8 +1,24 @@
 ﻿@page "/"
 @attribute [AllowAnonymous]
 
-<PageTitle>Home</PageTitle>
+<PageTitle>ArchitectCoach</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>ArchitectCoach</h1>
+<p class="lead">
+    Make the important architecture decisions before you build: what each option costs, how hard it
+    is to deploy and secure, how far it scales, and what it means for compliance. Then download a
+    GitHub Spec Kit–ready plan your own AI coding agent can build from.
+</p>
 
-Welcome to your new app.
+<AuthorizeView>
+    <Authorized>
+        <p><a class="btn btn-primary" href="projects">Go to my projects</a></p>
+    </Authorized>
+    <NotAuthorized>
+        <p class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" href="Account/Register">Create a free account</a>
+            <a class="btn btn-outline-secondary" href="Account/Login">Sign in</a>
+        </p>
+        <p class="small muted">Only your email address is stored. No AI runs on this site.</p>
+    </NotAuthorized>
+</AuthorizeView>

@@ -1,0 +1,21 @@
+<dt>@Label</dt>
+<dd>
+    @if (Items.Count == 0)
+    {
+        <span class="muted">Not decided yet</span>
+    }
+    else
+    {
+        <ul class="mb-0">
+            @foreach (var item in Items)
+            {
+                <li>@item</li>
+            }
+        </ul>
+    }
+</dd>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter, EditorRequired] public IReadOnlyList<string> Items { get; set; } = [];
+}

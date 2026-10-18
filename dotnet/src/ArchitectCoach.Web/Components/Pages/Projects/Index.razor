@@ -1,0 +1,93 @@
+@page "/projects"
+@using ArchitectCoach.Web.Content
+@using ArchitectCoach.Web.Data
+@using ArchitectCoach.Web.Domain
+@using ArchitectCoach.Web.Services
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+@inject ContentCatalog Content
+@inject WizardService Wizard
+@inject NavigationManager Nav
+
+<PageTitle>My projects · ArchitectCoach</PageTitle>
+
+<h1>My projects</h1>
+
+<section class="card-panel mb-4" aria-labelledby="new-heading">
+    <h2 id="new-heading" class="h5">Start a new project</h2>
+    @if (error is not null)
+    {
+        <div class="alert alert-danger" role="alert" id="new-error">@error</div>
+    }
+    <form method="post" @formname="new-project" @onsubmit="CreateAsync">
+        <AntiforgeryToken />
+        <fieldset class="mb-3" aria-describedby="@(error is null ? null : "new-error")">
+            <legend class="fs-6 fw-semibold">What are you building?</legend>
+            @for (var i = 0; i < Content.Wizard.ProjectTypes.Count; i++)
+            {
+                var type = Content.Wizard.ProjectTypes[i];
+                var id = $"type-{i}";
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ProjectType" id="@id" value="@type.Label" checked="@(ProjectType == type.Label)" required />
+                    <label class="form-check-label" for="@id">@type.Label</label>
+                </div>
+            }
+        </fieldset>
+        <div class="mb-3">
+            <label for="purpose" class="form-label">In one line, what is it for? <span class="muted">(optional)</span></label>
+            <input id="purpose" name="Purpose" class="form-control" maxlength="@WizardService.MaxPurposeLength" value="@Purpose" aria-describedby="purpose-help" />
+            <div id="purpose-help" class="form-text">Don't include personal or confidential information.</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Start the interview</button>
+    </form>
+</section>
+
+<section aria-labelledby="list-heading">
+    <h2 id="list-heading" class="h5">Your projects</h2>
+    @if (projects is null || projects.Count == 0)
+    {
+        <p class="muted">No projects yet.</p>
+    }
+    else
+    {
+        <ul class="list-unstyled d-grid gap-2">
+            @foreach (var p in projects)
+            {
+                var total = Content.StepsFor(p.ProjectType).Count;
+                <li class="card-panel">
+                    <a href="projects/@p.Id" class="fw-semibold">@p.ProjectType</a>
+                    @if (!string.IsNullOrWhiteSpace(p.Purpose))
+                    {
+                        <span class="muted"> · @p.Purpose</span>
+                    }
+                    <div class="small muted">@(p.StepIndex >= total ? "Interview complete" : $"{p.StepIndex} of {total} questions answered") · started @p.CreatedAt.ToString("MMM d, yyyy")</div>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    private List<Project>? projects;
+    private string? error;
+
+    // Only these two fields are bound from the form; the owner comes from the signed-in user.
+    [SupplyParameterFromForm(FormName = "new-project")] private string? ProjectType { get; set; }
+    [SupplyParameterFromForm(FormName = "new-project")] private string? Purpose { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await Db.Projects.AsNoTracking().OrderByDescending(p => p.UpdatedAt).ToListAsync();
+    }
+
+    private async Task CreateAsync()
+    {
+        var id = await Wizard.CreateProjectAsync(ProjectType ?? "", Purpose);
+        if (id is null)
+        {
+            error = "Choose what you're building.";
+            return;
+        }
+        Nav.NavigateTo($"projects/{id}/interview");
+    }
+}

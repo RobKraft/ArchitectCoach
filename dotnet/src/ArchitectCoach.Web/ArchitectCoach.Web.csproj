@@ -18,4 +18,10 @@
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Wizard content exported from the Next.js app (scripts/export-content.ts); loaded by ContentCatalog. -->
+    <EmbeddedResource Include="Content/*.json" />
+    <Content Remove="Content/*.json" />
+  </ItemGroup>
+
 </Project>

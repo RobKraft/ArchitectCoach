@@ -1,7 +1,9 @@
 using ArchitectCoach.Web.Components;
 using ArchitectCoach.Web.Components.Account;
+using ArchitectCoach.Web.Content;
 using ArchitectCoach.Web.Data;
 using ArchitectCoach.Web.Security;
+using ArchitectCoach.Web.Services;
 using ArchitectCoach.Web.Services.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -85,6 +87,9 @@ else
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityEmailSender>();
 
 builder.Services.AddAppRateLimiting(builder.Configuration);
+
+builder.Services.AddSingleton<ContentCatalog>();
+builder.Services.AddScoped<WizardService>();
 
 var app = builder.Build();
 

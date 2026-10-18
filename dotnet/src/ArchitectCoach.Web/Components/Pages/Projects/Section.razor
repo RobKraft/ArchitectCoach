@@ -1,0 +1,54 @@
+@page "/projects/{Id:guid}/requirements"
+@page "/projects/{Id:guid}/architecture"
+@page "/projects/{Id:guid}/technology"
+@inherits ProjectPageBase
+
+@if (Project is not null)
+{
+    var k = Project.Knowledge;
+    <PageTitle>@Title · @Project.ProjectType · ArchitectCoach</PageTitle>
+    <div class="project-shell">
+        <ProjectNav Project="Project" Active="@SectionKey" />
+        <div>
+            <h1>@Title</h1>
+            <dl class="card-panel">
+                @switch (SectionKey)
+                {
+                    case "requirements":
+                        <Field Label="Purpose" Value="@k.Requirements.Purpose" />
+                        <ListField Label="Who it's for" Items="k.Requirements.Users" />
+                        <ListField Label="Goals" Items="k.Requirements.Goals" />
+                        <ListField Label="Non-goals" Items="k.Requirements.NonGoals" />
+                        <ListField Label="Functional requirements" Items="k.Requirements.FunctionalRequirements" />
+                        break;
+                    case "architecture":
+                        <Field Label="Style / build approach" Value="@k.Architecture.Style" />
+                        <ListField Label="Components" Items="k.Architecture.Components" />
+                        <Field Label="Data flow" Value="@k.Architecture.DataFlow" />
+                        <Field Label="Notes" Value="@k.Architecture.Notes" />
+                        break;
+                    default:
+                        <Field Label="Frontend" Value="@k.Technology.Frontend" />
+                        <Field Label="Backend" Value="@k.Technology.Backend" />
+                        <Field Label="Database" Value="@k.Technology.Database" />
+                        <Field Label="Hosting" Value="@k.Technology.Hosting" />
+                        <Field Label="Authentication" Value="@k.Technology.Authentication" />
+                        <ListField Label="Third-party services" Items="k.Technology.ThirdPartyServices" />
+                        break;
+                }
+            </dl>
+            <p class="small muted">Filled in automatically from your interview answers.</p>
+        </div>
+    </div>
+}
+
+@code {
+    private string SectionKey => Nav.ToBaseRelativePath(Nav.Uri).Split('?', '#')[0].Split('/').Last().ToLowerInvariant();
+
+    private string Title => SectionKey switch
+    {
+        "requirements" => "Requirements",
+        "architecture" => "Architecture",
+        _ => "Technology",
+    };
+}

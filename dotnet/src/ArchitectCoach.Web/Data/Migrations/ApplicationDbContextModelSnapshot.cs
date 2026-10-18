@@ -170,6 +170,7 @@ namespace ArchitectCoach.Web.Data.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("StepIndex")
+                        .IsConcurrencyToken()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")

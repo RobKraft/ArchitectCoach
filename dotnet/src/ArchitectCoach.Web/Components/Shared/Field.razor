@@ -1,0 +1,7 @@
+<dt>@Label</dt>
+<dd class="@(string.IsNullOrWhiteSpace(Value) ? "muted" : null)">@(string.IsNullOrWhiteSpace(Value) ? "Not decided yet" : Value)</dd>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter] public string? Value { get; set; }
+}

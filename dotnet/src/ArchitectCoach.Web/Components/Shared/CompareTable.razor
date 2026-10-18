@@ -1,0 +1,40 @@
+@using ArchitectCoach.Web.Content
+
+@* Side-by-side quick comparison of every option on one wizard step. *@
+<section class="card-panel mb-3" aria-labelledby="compare-heading">
+    <h2 id="compare-heading" class="h5">Compare the options at a glance</h2>
+    <div class="table-responsive">
+        <table class="table compare-table mb-2">
+            <caption class="visually-hidden">Deployment complexity, accounts to manage, ballpark monthly cost, and scalability for each option</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Option</th>
+                    <th scope="col">Deployment</th>
+                    <th scope="col">Accounts to manage</th>
+                    <th scope="col">Ballpark cost</th>
+                    <th scope="col">Scalability</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var option in Options)
+                {
+                    if (!Assessments.TryGetValue(option.Id, out var a)) continue;
+                    <tr>
+                        <th scope="row">@option.Label</th>
+                        <td><Badges Text="@($"{a.Deployment.Complexity} complexity")" Tone="@Badges.ComplexityTone(a.Deployment.Complexity)" /></td>
+                        <td>@(a.Components.Accounts.Count == 0 ? "None" : a.Components.Accounts.Count.ToString())</td>
+                        <td><Badges Text="@a.Cost.Bucket" Tone="@Badges.CostTone(a.Cost.Bucket)" /></td>
+                        <td><Badges Text="@($"{a.Scalability.Level} scalability")" Tone="@Badges.ScalabilityTone(a.Scalability.Level)" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="small muted mb-0">Open "Deep dive" on any option below for security, compliance, auditing, cost-monitoring, and performance details. Costs are rough monthly ballparks as of @AsOf.</p>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<WizardOption> Options { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlyDictionary<string, OptionAssessment> Assessments { get; set; } = default!;
+    [Parameter, EditorRequired] public string AsOf { get; set; } = "";
+}

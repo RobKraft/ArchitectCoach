@@ -1,0 +1,31 @@
+@page "/projects/{Id:guid}/decisions"
+@inherits ProjectPageBase
+
+@if (Project is not null)
+{
+    <PageTitle>Decision records · @Project.ProjectType · ArchitectCoach</PageTitle>
+    <div class="project-shell">
+        <ProjectNav Project="Project" Active="decisions" />
+        <div>
+            <h1>Decision records</h1>
+            <p class="muted">Each significant choice, with why it was made, the alternatives, and the tradeoffs.</p>
+            @if (Project.Decisions.Count == 0)
+            {
+                <p>No decisions recorded yet. They're added as you answer architecture and technology questions in the <a href="@ProjectUrl("interview")">interview</a>.</p>
+            }
+            else
+            {
+                <ol class="list-unstyled d-grid gap-2">
+                    @foreach (var d in Project.Decisions)
+                    {
+                        <li class="card-panel">
+                            <a href="@ProjectUrl($"decisions/{d.Number}")" class="fw-semibold">ADR-@d.Number.ToString("0000"): @d.Title</a>
+                            <div>@Overview.DecisionLabel(d.Decision)</div>
+                            <div class="small muted">@d.Section · @d.CreatedAt.ToString("MMM d, yyyy")</div>
+                        </li>
+                    }
+                </ol>
+            }
+        </div>
+    </div>
+}

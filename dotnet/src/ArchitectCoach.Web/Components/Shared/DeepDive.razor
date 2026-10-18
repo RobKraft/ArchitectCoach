@@ -1,0 +1,53 @@
+@using ArchitectCoach.Web.Content
+
+@* The full nine-question deep dive for one option (ADR-0007). *@
+<details>
+    <summary>Deep dive: cost, security, scale &amp; more</summary>
+    <dl>
+        <dt>Deployment complexity</dt>
+        <dd><Badges Text="@($"{A.Deployment.Complexity} complexity")" Tone="@Badges.ComplexityTone(A.Deployment.Complexity)" /> @A.Deployment.Notes</dd>
+
+        <dt>Accounts &amp; integrations to manage</dt>
+        <dd>
+            @if (A.Components.Accounts.Count == 0)
+            {
+                <span>None. </span>
+            }
+            else
+            {
+                <ul class="mb-1">
+                    @foreach (var account in A.Components.Accounts)
+                    {
+                        <li>@account</li>
+                    }
+                </ul>
+            }
+            @A.Components.Notes
+        </dd>
+
+        <dt>Ballpark cost</dt>
+        <dd><Badges Text="@A.Cost.Bucket" Tone="@Badges.CostTone(A.Cost.Bucket)" /> @A.Cost.Notes</dd>
+
+        <dt>Security concerns</dt>
+        <dd>@A.Security</dd>
+
+        <dt>Scalability</dt>
+        <dd><Badges Text="@($"{A.Scalability.Level} scalability")" Tone="@Badges.ScalabilityTone(A.Scalability.Level)" /> @A.Scalability.Notes</dd>
+
+        <dt>Governance, risk &amp; compliance</dt>
+        <dd>@A.Grc</dd>
+
+        <dt>Auditing for correctness</dt>
+        <dd>@A.Auditing</dd>
+
+        <dt>Staying on top of costs</dt>
+        <dd>@A.CostMonitoring</dd>
+
+        <dt>Performance</dt>
+        <dd>@A.Performance</dd>
+    </dl>
+</details>
+
+@code {
+    [Parameter, EditorRequired] public OptionAssessment A { get; set; } = default!;
+}
