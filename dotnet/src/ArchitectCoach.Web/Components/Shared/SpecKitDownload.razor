@@ -1,0 +1,19 @@
+@using ArchitectCoach.Web.Domain
+@using ArchitectCoach.Web.Services.Kits
+
+<div>
+    <p>
+        Download your Spec Kit. It works with
+        <a href="https://github.com/github/spec-kit" target="_blank" rel="noopener noreferrer">GitHub Spec Kit<span class="visually-hidden"> (new tab)</span></a>:
+        your own AI coding agent asks the remaining questions, then writes the spec, plan, and task
+        list with you. It includes privacy (GDPR/CCPA) and accessibility (WCAG 2.2 AA) guidance@(DevKitGenerator.SupportedTypes.Contains(Project.ProjectType) ? ", plus coding standards, checklists, and your decisions as ADRs" : "").
+    </p>
+    @* data-enhance-nav="false": a file download, not a page for Blazor to swap in. *@
+    <a class="btn btn-primary" href="projects/@Project.Id/kit" data-enhance-nav="false" download>
+        Download Spec Kit (.zip)
+    </a>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Project Project { get; set; } = default!;
+}

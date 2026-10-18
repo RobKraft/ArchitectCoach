@@ -49,6 +49,11 @@ Which option was picked at each step is recovered from `Project.knowledge`
 (`src/lib/wizard/resolveChoices.ts`), since `applyAnswer.ts` writes the option label there. No
 schema change was needed.
 
+**.NET implementation (2026-10-18):** `dotnet/src/ArchitectCoach.Web/Services/Kits/` ports both
+generators. `GET /projects/{id}/kit` serves the ZIP through the owner-filtered context, and
+`KitGoldenTests` checks the output byte for byte against the TypeScript generators' output
+for 16 answer sets (`scripts/export-golden-kits.ts` → `dotnet/tests/ArchitectCoach.Tests/Golden/`).
+
 ## Alternatives considered
 
 - **Pre-fill Spec Kit's own files** (`.specify/memory/constitution.md`, `specs/001-*/spec.md`).

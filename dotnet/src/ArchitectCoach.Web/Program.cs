@@ -5,6 +5,7 @@ using ArchitectCoach.Web.Data;
 using ArchitectCoach.Web.Security;
 using ArchitectCoach.Web.Services;
 using ArchitectCoach.Web.Services.Email;
+using ArchitectCoach.Web.Services.Kits;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -90,6 +91,8 @@ builder.Services.AddAppRateLimiting(builder.Configuration);
 
 builder.Services.AddSingleton<ContentCatalog>();
 builder.Services.AddScoped<WizardService>();
+builder.Services.AddScoped<SpecKitGenerator>();
+builder.Services.AddScoped<KitService>();
 
 var app = builder.Build();
 
@@ -114,6 +117,7 @@ app.MapStaticAssets().AllowAnonymous();
 app.MapRazorComponents<App>();
 
 app.MapAdditionalIdentityEndpoints();
+app.MapKitEndpoints();
 
 app.Run();
 

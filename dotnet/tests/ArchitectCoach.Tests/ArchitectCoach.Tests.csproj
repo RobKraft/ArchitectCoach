@@ -22,4 +22,9 @@
     <ProjectReference Include="..\..\src\ArchitectCoach.Web\ArchitectCoach.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Expected kit output from the Next.js generators (scripts/export-golden-kits.ts). -->
+    <None Include="Golden/**/*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

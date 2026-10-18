@@ -49,18 +49,9 @@ public sealed class WizardService(ApplicationDbContext db, ContentCatalog conten
         {
             // Added through the DbSet so EF inserts it: DecisionRecord sets its own Guid key, and a
             // keyed entity attached via a navigation would be treated as existing (an UPDATE).
-            db.Decisions.Add(new DecisionRecord
-            {
-                ProjectId = project.Id,
-                Number = project.Decisions.Count == 0 ? 1 : project.Decisions.Max(d => d.Number) + 1,
-                Title = spec.Title,
-                Section = Enum.Parse<DecisionSection>(step.Topic, ignoreCase: true),
-                Decision = $"{option.Label} (for: \"{step.Question}\")",
-                Rationale = option.Summary,
-                Alternatives = string.Join(" ", step.Options.Where(o => o.Id != option.Id).Select(o => $"{o.Label} — {o.Summary}")),
-                Tradeoffs = option.Tradeoffs,
-                Consequences = spec.Consequences ?? "",
-            });
+            var record = BuildDecision(step, spec, option, project.Decisions.Count == 0 ? 1 : project.Decisions.Max(d => d.Number) + 1);
+            record.ProjectId = project.Id;
+            db.Decisions.Add(record);
         }
 
         project.StepIndex = stepIndex + 1;
@@ -75,6 +66,19 @@ public sealed class WizardService(ApplicationDbContext db, ContentCatalog conten
         }
         return project.StepIndex >= steps.Count ? AnswerResult.Finished : AnswerResult.Applied;
     }
+
+    /// <summary>The Decision Record for a pick (same fields and wording as the Next.js applyAnswer.ts).</summary>
+    public static DecisionRecord BuildDecision(WizardStep step, RecordDecisionSpec spec, WizardOption option, int number) => new()
+    {
+        Number = number,
+        Title = spec.Title,
+        Section = Enum.Parse<DecisionSection>(step.Topic, ignoreCase: true),
+        Decision = $"{option.Label} (for: \"{step.Question}\")",
+        Rationale = option.Summary,
+        Alternatives = string.Join(" ", step.Options.Where(o => o.Id != option.Id).Select(o => $"{o.Label} — {o.Summary}")),
+        Tradeoffs = option.Tradeoffs,
+        Consequences = spec.Consequences ?? "",
+    };
 
     /// <summary>
     /// Writes the picked label into knowledge[topic][field]: strings are replaced, lists get the

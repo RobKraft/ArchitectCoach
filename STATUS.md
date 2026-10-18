@@ -147,11 +147,29 @@ Identity, EF Core + SQL Server), `tests/ArchitectCoach.IntegrationTests` (18 tes
   step; compare table and deep dives render; no CSP violations; phone width has no horizontal
   scroll and 44px buttons. Test account deleted afterward, and its project cascaded with it.
 
+## Added 2026-10-18: Phase 3 of the .NET rewrite (Spec Kit + Dev Kit download)
+
+- `Services/Kits/`: `SpecKitGenerator` and `DevKitGenerator` (ports of the TypeScript
+  generators), `KitService` (merge + ZIP), and `GET /projects/{id}/kit` (owner-filtered,
+  `Cache-Control: no-store`). A "Download Spec Kit" button appears on the interview's completion
+  panel and on the overview once the interview is finished.
+- **Parity proven byte for byte:** `scripts/export-golden-kits.ts` writes what the TypeScript
+  generators produce for 16 answer sets (every type × 3 picks, plus a half-finished project and a
+  purpose with quotes/ampersands/angle brackets) to `dotnet/tests/ArchitectCoach.Tests/Golden/`.
+  `KitGoldenTests` requires identical files. A one-word mutation in a golden file was caught at
+  the exact line, as it should be.
+- Decision-record construction is now one shared helper (`WizardService.BuildDecision`), used
+  by the app and the golden tests.
+- Tests: 30 unit + 29 integration. The kit URL is in the cross-user 404 list, and the full-wizard
+  HTTP test downloads and inspects the ZIP.
+- Browser check: completed a Static website project; the button downloads a valid 28 KB ZIP
+  with the right file name and headers. Test account deleted afterward.
+
 ## Git state
 
 `b1c2ffb` (Discuss with AI + Dev Kit) and `fc871a4` (assessments + Spec Kit) are pushed to
 `origin/master` (`RobKraft/ArchitectCoach`), as is `62d1c3d` (rewrite plan, Phase 0 probe,
-Phase 2a content) and the Phase 1 commit (.NET skeleton + security). Phase 2b (content + wizard) is committed and pushed too.
+Phase 2a content) and the Phase 1 commit (.NET skeleton + security). Phase 2b (content + wizard) is committed and pushed too. So is Phase 3 (Spec Kit + Dev Kit download).
 `.claude/launch.json` is deliberately left uncommitted.
 
 `archiver` is pinned to **v7.0.1**, not v8: v8's ESM `exports` field breaks Next.js's webpack
@@ -205,7 +223,7 @@ re-derived:
 
 ## Not yet done — pick up here
 
-1. **Phase 3 of the .NET rewrite** (Spec Kit + Dev Kit ZIP download). Run the Phase 0 probe on SmarterASP before launch ([checklist](docs/plans/phase0-hosting-checklist.md)) and record
+1. **Phase 4 of the .NET rewrite** (privacy features: export, delete, notice, retention; remove the phone-number field). Run the Phase 0 probe on SmarterASP before launch ([checklist](docs/plans/phase0-hosting-checklist.md)) and record
    the results in the rewrite plan.
 2. Replicate the AI Dev Kit's tailored content for the other 4 project types (Static site with a
    blog, Site with a backend/database, Phone app, Desktop app) — same pattern as

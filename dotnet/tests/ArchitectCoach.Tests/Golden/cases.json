@@ -1,0 +1,83 @@
+{
+  "static-website-pick0": {
+    "type": "Static website",
+    "purpose": "Project 0 purpose",
+    "pick": 0
+  },
+  "static-website-pick1": {
+    "type": "Static website",
+    "purpose": "Team's \"booking\" site & admin <beta>",
+    "pick": 1
+  },
+  "static-website-pick2": {
+    "type": "Static website",
+    "purpose": "",
+    "pick": 2
+  },
+  "static-site-with-a-blog-pick0": {
+    "type": "Static site with a blog",
+    "purpose": "Project 1 purpose",
+    "pick": 0
+  },
+  "static-site-with-a-blog-pick1": {
+    "type": "Static site with a blog",
+    "purpose": "Team's \"booking\" site & admin <beta>",
+    "pick": 1
+  },
+  "static-site-with-a-blog-pick2": {
+    "type": "Static site with a blog",
+    "purpose": "",
+    "pick": 2
+  },
+  "site-with-a-backend-database-pick0": {
+    "type": "Site with a backend/database",
+    "purpose": "Project 2 purpose",
+    "pick": 0
+  },
+  "site-with-a-backend-database-pick1": {
+    "type": "Site with a backend/database",
+    "purpose": "Team's \"booking\" site & admin <beta>",
+    "pick": 1
+  },
+  "site-with-a-backend-database-pick2": {
+    "type": "Site with a backend/database",
+    "purpose": "",
+    "pick": 2
+  },
+  "phone-app-pick0": {
+    "type": "Phone app",
+    "purpose": "Project 3 purpose",
+    "pick": 0
+  },
+  "phone-app-pick1": {
+    "type": "Phone app",
+    "purpose": "Team's \"booking\" site & admin <beta>",
+    "pick": 1
+  },
+  "phone-app-pick2": {
+    "type": "Phone app",
+    "purpose": "",
+    "pick": 2
+  },
+  "desktop-app-pick0": {
+    "type": "Desktop app",
+    "purpose": "Project 4 purpose",
+    "pick": 0
+  },
+  "desktop-app-pick1": {
+    "type": "Desktop app",
+    "purpose": "Team's \"booking\" site & admin <beta>",
+    "pick": 1
+  },
+  "desktop-app-pick2": {
+    "type": "Desktop app",
+    "purpose": "",
+    "pick": 2
+  },
+  "static-website-partial": {
+    "type": "Static website",
+    "purpose": "Half done",
+    "pick": 0,
+    "answerSteps": 2
+  }
+}

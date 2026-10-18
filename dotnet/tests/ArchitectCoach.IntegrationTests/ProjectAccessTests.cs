@@ -49,7 +49,7 @@ public partial class ProjectAccessTests(AppFactory app) : IClassFixture<AppFacto
     [
         $"/projects/{id}", $"/projects/{id}/interview", $"/projects/{id}/requirements",
         $"/projects/{id}/architecture", $"/projects/{id}/technology", $"/projects/{id}/decisions",
-        $"/projects/{id}/decisions/1",
+        $"/projects/{id}/decisions/1", $"/projects/{id}/kit",
     ];
 
     /// <summary>Alice's Static website project, answered far enough to have decision #1.</summary>
@@ -197,6 +197,23 @@ public partial class ProjectAccessTests(AppFactory app) : IClassFixture<AppFacto
         Assert.Equal(steps.Count, project.StepIndex);
         Assert.Equal(steps.Count(s => s.RecordDecision is not null), project.Decisions.Count);
         Assert.Equal(Enumerable.Range(1, project.Decisions.Count), project.Decisions.Select(d => d.Number).Order());
+
+        // The Spec Kit download reflects this project's answers.
+        Assert.Contains($"projects/{id}/kit", WebUtility.HtmlDecode(done));
+        var kit = await client.GetAsync($"/projects/{id}/kit");
+        Assert.Equal(HttpStatusCode.OK, kit.StatusCode);
+        Assert.Equal("application/zip", kit.Content.Headers.ContentType!.MediaType);
+        Assert.Contains("no-store", kit.Headers.CacheControl!.ToString());
+        Assert.EndsWith("-spec-kit.zip", kit.Content.Headers.ContentDisposition!.FileName!.Trim('"'));
+
+        using var zip = new System.IO.Compression.ZipArchive(await kit.Content.ReadAsStreamAsync());
+        var names = zip.Entries.Select(e => e.FullName).ToHashSet();
+        Assert.Contains("AGENTS.md", names);
+        Assert.Contains("architectcoach/privacy-and-accessibility.md", names);
+        using var reader = new StreamReader(zip.GetEntry("architectcoach/decisions.md")!.Open());
+        var decisions = await reader.ReadToEndAsync();
+        foreach (var step in steps)
+            Assert.Contains($"**Chosen:** {step.Options[1].Label}", decisions);
     }
 
     [GeneratedRegex(@"projects/([0-9a-f\-]{36})/interview")]

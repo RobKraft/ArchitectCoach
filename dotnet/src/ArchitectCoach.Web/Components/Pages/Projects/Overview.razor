@@ -17,9 +17,16 @@
                 <p>@answered of @Steps.Count questions answered.</p>
                 <progress max="@Steps.Count" value="@answered" aria-label="Interview progress">@answered of @Steps.Count</progress>
                 <p class="mt-3 mb-0">
-                    <a class="btn btn-primary" href="@ProjectUrl("interview")">@(done ? "Review the interview" : answered == 0 ? "Start the interview" : "Continue the interview")</a>
+                    <a class="@(done ? "btn btn-outline-secondary" : "btn btn-primary")" href="@ProjectUrl("interview")">@(done ? "Review the interview" : answered == 0 ? "Start the interview" : "Continue the interview")</a>
                 </p>
             </section>
+            @if (done)
+            {
+                <section class="card-panel mb-3" aria-labelledby="kit-heading">
+                    <h2 id="kit-heading" class="h5">Your Spec Kit</h2>
+                    <SpecKitDownload Project="Project" />
+                </section>
+            }
             <section class="card-panel" aria-labelledby="decisions-heading">
                 <h2 id="decisions-heading" class="h5">Decisions so far</h2>
                 @if (Project.Decisions.Count == 0)
