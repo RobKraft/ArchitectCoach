@@ -1,0 +1,16 @@
+﻿@page "/Account/RegisterConfirmation"
+@attribute [AllowAnonymous]
+
+<PageTitle>Check your email</PageTitle>
+
+<h1>Check your email</h1>
+
+@* Same message whether or not the address is registered, so this page can't be used to find
+   out who has an account. The template's on-screen confirmation link was removed: it let
+   anyone confirm any address without access to its inbox. *@
+<p role="status">
+    If that address can be used for a new account, we've sent it a link to confirm it.
+    Open the link to finish creating your account. It may take a few minutes to arrive, so check
+    your spam folder too.
+</p>
+<p><a href="Account/ResendEmailConfirmation">Didn't get it? Resend the confirmation email</a></p>

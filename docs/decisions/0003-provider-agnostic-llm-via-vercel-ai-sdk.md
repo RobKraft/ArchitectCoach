@@ -1,6 +1,6 @@
 # ADR-0003: Provider-agnostic LLM access via the Vercel AI SDK, from day one
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-0009](0009-dotnet-blazor-sqlserver-rewrite.md)
 **Date:** 2026-08-15
 
 ## Context

@@ -18,11 +18,13 @@ superseded one — mark it "Superseded by ADR-00XX" instead, so the history stay
 
 | # | Title | Status |
 |---|---|---|
-| [0001](0001-jsonb-knowledge-model-not-full-normalization.md) | Project knowledge as a typed JSON document, not a fully normalized schema | Accepted |
-| [0002](0002-nextjs-fullstack-single-deployable.md) | Next.js full-stack, not a separate ASP.NET Core/FastAPI backend | Accepted |
-| [0003](0003-provider-agnostic-llm-via-vercel-ai-sdk.md) | Provider-agnostic LLM access via the Vercel AI SDK | Accepted |
-| [0004](0004-docker-compose-postgres-only.md) | Local dev: Postgres in Docker Compose, app runs on host | Accepted |
-| [0005](0005-non-default-local-ports.md) | Non-default local ports (app 3001, Postgres 5433) | Accepted |
-| [0006](0006-pre-call-moderation-gate.md) | Pre-call moderation gate for interview chat messages | Accepted |
+| [0001](0001-jsonb-knowledge-model-not-full-normalization.md) | Project knowledge as a typed JSON document, not a fully normalized schema | Accepted (amended by 0009: EF Core JSON column) |
+| [0002](0002-nextjs-fullstack-single-deployable.md) | Next.js full-stack, not a separate ASP.NET Core/FastAPI backend | Superseded by 0009 |
+| [0003](0003-provider-agnostic-llm-via-vercel-ai-sdk.md) | Provider-agnostic LLM access via the Vercel AI SDK | Superseded by 0009 |
+| [0004](0004-docker-compose-postgres-only.md) | Local dev: Postgres in Docker Compose, app runs on host | Superseded by 0009 |
+| [0005](0005-non-default-local-ports.md) | Non-default local ports (app 3001, Postgres 5433) | Amended by 0009 (LocalDB, port 5109) |
+| [0006](0006-pre-call-moderation-gate.md) | Pre-call moderation gate for interview chat messages | Superseded by 0009 |
 | [0007](0007-precomputed-option-assessments.md) | Pre-written option assessments in TypeScript, not AI-generated or database-stored | Accepted |
 | [0008](0008-spec-kit-compatible-download.md) | Downloadable kit feeds GitHub Spec Kit; the developer's own AI finishes the spec | Accepted |
+| [0009](0009-dotnet-blazor-sqlserver-rewrite.md) | Rewrite as ASP.NET Core Blazor (static SSR) + SQL Server on SmarterASP | Accepted (supersedes 0002/0003/0004/0006) |
+| [0010](0010-identity-email-password-and-owner-scoping.md) | ASP.NET Core Identity (email + password) and server-enforced project ownership | Accepted |

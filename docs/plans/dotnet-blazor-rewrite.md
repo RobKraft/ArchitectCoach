@@ -1,7 +1,8 @@
 # Plan: rewrite ArchitectCoach as ASP.NET Core Blazor + SQL Server
 
-**Status:** Approved 2026-10-18. Phase 2a done. Phase 0 probe built (`dotnet/HostingProbe/`)
-and waiting for the owner to run it on SmarterASP ([checklist](phase0-hosting-checklist.md)).
+**Status:** Approved 2026-10-18. **Phase 1 and 2a done.** Phase 0: the owner chose to *assume*
+A1 (.NET 10) and A3 (SMTP) work on SmarterASP and continue. The probe (`dotnet/HostingProbe/`,
+[checklist](phase0-hosting-checklist.md)) should still be run before launch. Next: Phase 2b.
 **Date:** 2026-10-18
 **Target host:** SmarterASP.NET (Windows/IIS shared hosting, SQL Server, SMTP)
 

@@ -1,6 +1,6 @@
 # ADR-0004: Local dev — Postgres in Docker Compose, the Next.js app runs on the host
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-0009](0009-dotnet-blazor-sqlserver-rewrite.md)
 **Date:** 2026-08-15
 
 ## Context

@@ -1,6 +1,6 @@
 # ADR-0006: Pre-call moderation gate for interview chat messages
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-0009](0009-dotnet-blazor-sqlserver-rewrite.md)
 **Date:** 2026-08-20
 
 ## Context

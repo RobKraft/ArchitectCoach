@@ -1,6 +1,6 @@
 # ADR-0002: Next.js full-stack (App Router), not a separate ASP.NET Core or FastAPI backend
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-0009](0009-dotnet-blazor-sqlserver-rewrite.md)
 **Date:** 2026-08-15
 
 ## Context

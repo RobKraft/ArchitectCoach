@@ -6,3 +6,6 @@ publish/
 # Real secrets (connection strings, SMTP password, probe key) — never commit.
 appsettings.Production.json
 appsettings.*.local.json
+App_Data/
+# Bootstrap ships in a "dist" folder, which the repo-root .gitignore ignores (Next.js build output).
+!**/wwwroot/lib/**/dist/

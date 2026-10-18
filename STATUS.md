@@ -94,11 +94,40 @@ API, downloaded and unzipped both ZIPs, read the generated files, then deleted b
   accessibility standard, a11y testing); and AGENTS.md requires a PII inventory and accessibility
   test approach in the plan. `npm test` 63/63; a Desktop app kit was checked live.
 
+## Added 2026-10-18: Phase 1 of the .NET rewrite (skeleton + security)
+
+`dotnet/ArchitectCoach.slnx`: `src/ArchitectCoach.Web` (ASP.NET Core 10, Blazor static SSR,
+Identity, EF Core + SQL Server), `tests/ArchitectCoach.IntegrationTests` (18 tests), and
+`tests/ArchitectCoach.Tests` (empty until Phase 2b). See ADR-0009 and ADR-0010.
+
+- Email + password accounts: confirmation required, 12+ character passwords, lockout after 5
+  failures, SMTP via MailKit with TLS required (dev writes .eml files to `App_Data/mail-pickup`).
+- Sign-in required by default (fallback policy). Public routes are pinned by
+  `EndpointInventoryTests`, which also checks every private GET route redirects signed-out users.
+  A mutation check (fallback policy removed) made 3 of its 4 tests fail, as it should.
+- `Project`/`DecisionRecord` are owner-scoped by EF Core query filters plus a SaveChanges guard
+  (`OwnershipTests`). Deleting a user cascades to their data.
+- Rate limiting on POSTs (10/min per IP on account pages), CSP with no inline script, and other
+  security headers.
+- Template fixes: lockout was off; an on-screen confirmation link let anyone confirm any email;
+  registration revealed which emails exist; passkey options looked up usernames; the email was in
+  the post-registration URL.
+- Verified in a real browser: register → email → confirm → sign in → account page, with no CSP
+  violations. The test user was deleted afterward.
+- Run locally: `dotnet run --project dotnet/src/ArchitectCoach.Web --launch-profile http`
+  (http://localhost:5109, LocalDB database `ArchitectCoach_Dev`, created by
+  `dotnet ef database update -p dotnet/src/ArchitectCoach.Web`). Tests:
+  `dotnet test dotnet/tests/ArchitectCoach.IntegrationTests`.
+- **Known gaps (later phases):** the template's profile page still has a phone-number field
+  (Phase 4); the nav menu still links the removed sample pages (Phase 2b); a11y issues in template
+  pages such as the "Remember me" checkbox labeled "True" (Phase 5).
+
 ## Git state
 
 `b1c2ffb` (Discuss with AI + Dev Kit) and `fc871a4` (assessments + Spec Kit) are pushed to
-`origin/master` (`RobKraft/ArchitectCoach`), as is the 2026-10-18 commit with the rewrite plan,
-Phase 0 probe, and Phase 2a content. `.claude/launch.json` is deliberately left uncommitted.
+`origin/master` (`RobKraft/ArchitectCoach`), as is `62d1c3d` (rewrite plan, Phase 0 probe,
+Phase 2a content) and the Phase 1 commit (.NET skeleton + security).
+`.claude/launch.json` is deliberately left uncommitted.
 
 `archiver` is pinned to **v7.0.1**, not v8: v8's ESM `exports` field breaks Next.js's webpack
 build with `Module not found: Default condition should be last one`. Don't upgrade without
@@ -151,8 +180,8 @@ re-derived:
 
 ## Not yet done — pick up here
 
-1. **Run Phase 0 on SmarterASP** ([checklist](docs/plans/phase0-hosting-checklist.md)) and record
-   the results in the rewrite plan; then start Phase 1.
+1. **Phase 2b of the .NET rewrite** (content + wizard). Run the Phase 0 probe on SmarterASP before launch ([checklist](docs/plans/phase0-hosting-checklist.md)) and record
+   the results in the rewrite plan.
 2. Replicate the AI Dev Kit's tailored content for the other 4 project types (Static site with a
    blog, Site with a backend/database, Phone app, Desktop app) — same pattern as
    `generate.ts`'s Static-website functions, then add each to `DEVKIT_SUPPORTED_TYPES`.
