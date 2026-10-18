@@ -28,3 +28,4 @@ superseded one — mark it "Superseded by ADR-00XX" instead, so the history stay
 | [0008](0008-spec-kit-compatible-download.md) | Downloadable kit feeds GitHub Spec Kit; the developer's own AI finishes the spec | Accepted |
 | [0009](0009-dotnet-blazor-sqlserver-rewrite.md) | Rewrite as ASP.NET Core Blazor (static SSR) + SQL Server on SmarterASP | Accepted (supersedes 0002/0003/0004/0006) |
 | [0010](0010-identity-email-password-and-owner-scoping.md) | ASP.NET Core Identity (email + password) and server-enforced project ownership | Accepted |
+| [0011](0011-privacy-by-design.md) | Privacy by design: minimal data, self-service rights, enforced retention | Accepted |

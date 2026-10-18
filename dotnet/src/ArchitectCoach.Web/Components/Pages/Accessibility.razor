@@ -1,0 +1,35 @@
+@page "/accessibility"
+@attribute [AllowAnonymous]
+@using ArchitectCoach.Web.Services.Privacy
+@using Microsoft.Extensions.Options
+@inject IOptions<SiteOptions> SiteOptionsAccessor
+
+<PageTitle>Accessibility · ArchitectCoach</PageTitle>
+
+<article class="col-lg-9">
+    <h1>Accessibility statement</h1>
+
+    <p>
+        We want ArchitectCoach to work for everyone. Our target is
+        <strong>WCAG 2.2 level AA</strong>, the standard used for ADA and European Accessibility Act compliance.
+    </p>
+
+    <h2 class="h4">What we do</h2>
+    <ul>
+        <li>Every page works with a keyboard alone, with a visible focus indicator and a "skip to main content" link.</li>
+        <li>Pages use real headings, landmarks, labeled form fields, and table headers, so screen readers can navigate them.</li>
+        <li>Text and controls meet AA contrast ratios, and meaning is never shown by color alone (for example, every badge says "Low complexity" in words).</li>
+        <li>Pages reflow to a phone-width screen and 200% zoom without sideways scrolling, and respect your "reduce motion" setting.</li>
+        <li>Sign-in allows pasting and password managers, with no puzzles or CAPTCHAs.</li>
+        <li>Every page is checked with automated tools (axe) on each change, plus manual keyboard and screen-reader testing.</li>
+    </ul>
+
+    <h2 class="h4">Known issues</h2>
+    <p>None known right now. If you run into a barrier, we want to hear about it.</p>
+
+    <h2 class="h4">Report a problem</h2>
+    <p>
+        Email <strong>@(string.IsNullOrWhiteSpace(SiteOptionsAccessor.Value.PrivacyContactEmail) ? "[not yet configured]" : SiteOptionsAccessor.Value.PrivacyContactEmail)</strong>
+        with the page and what went wrong. We aim to reply within 5 business days.
+    </p>
+</article>

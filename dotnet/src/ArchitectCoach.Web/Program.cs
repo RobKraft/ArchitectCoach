@@ -6,6 +6,7 @@ using ArchitectCoach.Web.Security;
 using ArchitectCoach.Web.Services;
 using ArchitectCoach.Web.Services.Email;
 using ArchitectCoach.Web.Services.Kits;
+using ArchitectCoach.Web.Services.Privacy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -93,8 +94,17 @@ builder.Services.AddSingleton<ContentCatalog>();
 builder.Services.AddScoped<WizardService>();
 builder.Services.AddScoped<SpecKitGenerator>();
 builder.Services.AddScoped<KitService>();
+builder.Services.AddScoped<DataExportService>();
+builder.Services.Configure<SiteOptions>(builder.Configuration.GetSection(SiteOptions.Section));
+builder.Services.AddScoped<RetentionService>();
+builder.Services.AddHostedService<RetentionWorker>();
 
 var app = builder.Build();
+
+if (app.Environment.IsProduction() && !app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<SiteOptions>>().Value.IsConfigured)
+{
+    app.Logger.LogCritical("Site:OperatorName, Site:PrivacyContactEmail and Site:HostingRegion must be configured: the privacy notice shows placeholders until they are.");
+}
 
 if (app.Environment.IsDevelopment())
 {

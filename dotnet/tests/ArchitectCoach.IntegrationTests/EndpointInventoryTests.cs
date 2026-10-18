@@ -19,6 +19,8 @@ public class EndpointInventoryTests(AppFactory app) : IClassFixture<AppFactory>
         "",                                   // home / landing page
         "Error",
         "not-found",
+        "privacy",                            // privacy notice (GDPR/CCPA transparency)
+        "accessibility",                      // accessibility statement
         "Account/AccessDenied",
         "Account/ConfirmEmail",
         "Account/ConfirmEmailChange",

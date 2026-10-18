@@ -1,5 +1,7 @@
 @page "/projects/{Id:guid}"
 @inherits ProjectPageBase
+@using ArchitectCoach.Web.Services
+@inject WizardService Wizard
 
 @if (Project is not null)
 {
@@ -27,7 +29,7 @@
                     <SpecKitDownload Project="Project" />
                 </section>
             }
-            <section class="card-panel" aria-labelledby="decisions-heading">
+            <section class="card-panel mb-3" aria-labelledby="decisions-heading">
                 <h2 id="decisions-heading" class="h5">Decisions so far</h2>
                 @if (Project.Decisions.Count == 0)
                 {
@@ -43,11 +45,36 @@
                     </ul>
                 }
             </section>
+            <section class="card-panel" aria-labelledby="delete-heading">
+                <h2 id="delete-heading" class="h5">Delete this project</h2>
+                <p>Permanently deletes this project and all its decision records. This can't be undone.</p>
+                <form method="post" @formname="delete-project" @onsubmit="DeleteAsync">
+                    <AntiforgeryToken />
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="confirm-delete" name="ConfirmDelete" value="true" required />
+                        <label class="form-check-label" for="confirm-delete">I understand this project will be permanently deleted</label>
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger">Delete project</button>
+                </form>
+            </section>
         </div>
     </div>
 }
 
 @code {
+    [SupplyParameterFromForm(FormName = "delete-project")] private bool ConfirmDelete { get; set; }
+
+    private async Task DeleteAsync()
+    {
+        if (Project is null || !ConfirmDelete) return;
+        if (!await Wizard.DeleteProjectAsync(Id))
+        {
+            Nav.NotFound();
+            return;
+        }
+        Nav.NavigateTo("projects");
+    }
+
     /// <summary>Decision text is stored as 'Label (for: "question")'; show just the label here.</summary>
     internal static string DecisionLabel(string decision)
     {

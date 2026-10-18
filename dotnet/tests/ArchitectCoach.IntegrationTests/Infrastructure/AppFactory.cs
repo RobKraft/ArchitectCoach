@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 
 namespace ArchitectCoach.IntegrationTests.Infrastructure;
@@ -25,6 +26,9 @@ public class AppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     public CapturingMailTransport Mail { get; } = new();
 
+    /// <summary>Every log message the app writes, at Debug level and above.</summary>
+    public CapturingLoggerProvider Logs { get; } = new();
+
     protected virtual int AccountPostsPerMinute => 1000;
 
     public string ConnectionString =>
@@ -33,6 +37,11 @@ public class AppFactory : WebApplicationFactory<Program>, IAsyncLifetime
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
+        builder.ConfigureLogging(logging =>
+        {
+            logging.SetMinimumLevel(LogLevel.Debug);
+            logging.AddProvider(Logs);
+        });
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["ConnectionStrings:DefaultConnection"] = ConnectionString,
@@ -96,4 +105,20 @@ public sealed class CapturingMailTransport : IMailTransport
 
     public MimeMessage[] To(string email) =>
         Sent.Where(m => m.To.Mailboxes.Any(a => a.Address.Equals(email, StringComparison.OrdinalIgnoreCase))).ToArray();
+}
+
+public sealed class CapturingLoggerProvider : ILoggerProvider
+{
+    public ConcurrentQueue<string> Messages { get; } = new();
+
+    public ILogger CreateLogger(string categoryName) => new CapturingLogger(categoryName, Messages);
+    public void Dispose() { }
+
+    private sealed class CapturingLogger(string category, ConcurrentQueue<string> sink) : ILogger
+    {
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+        public bool IsEnabled(LogLevel logLevel) => true;
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
+            sink.Enqueue($"{logLevel} {category}: {formatter(state, exception)} {exception}");
+    }
 }

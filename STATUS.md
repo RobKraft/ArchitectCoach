@@ -165,11 +165,32 @@ Identity, EF Core + SQL Server), `tests/ArchitectCoach.IntegrationTests` (18 tes
 - Browser check: completed a Static website project; the button downloads a valid 28 KB ZIP
   with the right file name and headers. Test account deleted afterward.
 
+## Added 2026-10-18: Phase 4 of the .NET rewrite (privacy features)
+
+See [ADR-0011](docs/decisions/0011-privacy-by-design.md).
+- **Export my data** (`DataExportService`): account + every project and decision as JSON. It
+  replaces the template export, which omitted projects and **included the TOTP authenticator
+  key**.
+- **Delete a project** (overview page, confirmation required) and **delete my account**
+  (cascades to everything, signs out). The phone-number field was removed from the profile page.
+- **`/privacy`** notice, **`/accessibility`** statement, footer links, notice at collection, and
+  a required "16 or older" checkbox on registration.
+- **Retention:** unconfirmed accounts are deleted after 7 days (`RetentionService` +
+  `RetentionWorker`; new `ApplicationUser.CreatedAt` column and migration).
+- **[docs/breach-response.md](docs/breach-response.md)** runbook with an incident record.
+- Tests: 30 unit + 37 integration. New `PrivacyTests` cover export (compared against the user's
+  real stored hash and stamp), project deletion (incl. by another user), account deletion,
+  retention, and the public pages. The sign-up test now proves no email or password appears in
+  any Debug-level log message.
+- **Owner to do before launch:** set `Site:OperatorName`, `Site:PrivacyContactEmail`,
+  `Site:HostingRegion` (the notice shows "[not yet configured]" until then, and Production logs a
+  critical warning), and get a short legal review of `/privacy`.
+
 ## Git state
 
 `b1c2ffb` (Discuss with AI + Dev Kit) and `fc871a4` (assessments + Spec Kit) are pushed to
 `origin/master` (`RobKraft/ArchitectCoach`), as is `62d1c3d` (rewrite plan, Phase 0 probe,
-Phase 2a content) and the Phase 1 commit (.NET skeleton + security). Phase 2b (content + wizard) is committed and pushed too. So is Phase 3 (Spec Kit + Dev Kit download).
+Phase 2a content) and the Phase 1 commit (.NET skeleton + security). Phase 2b (content + wizard) is committed and pushed too. So is Phase 3 (Spec Kit + Dev Kit download). So is Phase 4 (privacy features).
 `.claude/launch.json` is deliberately left uncommitted.
 
 `archiver` is pinned to **v7.0.1**, not v8: v8's ESM `exports` field breaks Next.js's webpack
@@ -223,7 +244,7 @@ re-derived:
 
 ## Not yet done — pick up here
 
-1. **Phase 4 of the .NET rewrite** (privacy features: export, delete, notice, retention; remove the phone-number field). Run the Phase 0 probe on SmarterASP before launch ([checklist](docs/plans/phase0-hosting-checklist.md)) and record
+1. **Phase 5 of the .NET rewrite** (accessibility: axe tests on every page, manual keyboard/screen-reader pass, fix template issues like the "Remember me" checkbox labeled "True").
    the results in the rewrite plan.
 2. Replicate the AI Dev Kit's tailored content for the other 4 project types (Static site with a
    blog, Site with a backend/database, Phone app, Desktop app) — same pattern as

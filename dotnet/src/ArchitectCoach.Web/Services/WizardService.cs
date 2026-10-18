@@ -30,6 +30,19 @@ public sealed class WizardService(ApplicationDbContext db, ContentCatalog conten
         return project.Id;
     }
 
+    /// <summary>
+    /// Permanently deletes one of the current user's projects (decisions cascade). Returns false
+    /// when there's no such project for this user (another user's id behaves as missing).
+    /// </summary>
+    public async Task<bool> DeleteProjectAsync(Guid projectId, CancellationToken ct = default)
+    {
+        var project = await db.Projects.SingleOrDefaultAsync(p => p.Id == projectId, ct);
+        if (project is null) return false;
+        db.Projects.Remove(project);
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
+
     public async Task<AnswerResult> ApplyAnswerAsync(Guid projectId, string stepId, string optionId, CancellationToken ct = default)
     {
         var project = await db.Projects.Include(p => p.Decisions).SingleOrDefaultAsync(p => p.Id == projectId, ct);

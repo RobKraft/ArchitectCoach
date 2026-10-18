@@ -17,6 +17,7 @@ public class AccountFlowTests(AppFactory app) : IClassFixture<AppFactory>
             ["Input.Email"] = email,
             ["Input.Password"] = password,
             ["Input.ConfirmPassword"] = password,
+            ["Input.AgeConfirmed"] = "true",
         });
 
     private static Task<HttpResponseMessage> LoginAsync(HttpClient client, string email, string password = Password) =>
@@ -51,6 +52,26 @@ public class AccountFlowTests(AppFactory app) : IClassFixture<AppFactory>
         var login = await LoginAsync(client, email);
         Assert.Equal(HttpStatusCode.Redirect, login.StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/Account/Manage")).StatusCode);
+
+        // Privacy: the whole sign-up flow never wrote the email or password to the logs.
+        Assert.NotEmpty(app.Logs.Messages);
+        Assert.DoesNotContain(app.Logs.Messages, m => m.Contains(email, StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(app.Logs.Messages, m => m.Contains(Password));
+    }
+
+    [Fact]
+    public async Task Registration_requires_confirming_age_16_or_older()
+    {
+        var email = NewEmail();
+        var response = await Forms.SubmitAsync(app.NewClient(), "/Account/Register", "register", new Dictionary<string, string>
+        {
+            ["Input.Email"] = email,
+            ["Input.Password"] = Password,
+            ["Input.ConfirmPassword"] = Password,
+        });
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("16 or older", await response.Content.ReadAsStringAsync());
+        Assert.Empty(app.Mail.To(email));
     }
 
     [Fact]

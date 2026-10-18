@@ -24,6 +24,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<ApplicationUser>().Property(u => u.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+
         builder.Entity<Project>(p =>
         {
             p.HasKey(x => x.Id);

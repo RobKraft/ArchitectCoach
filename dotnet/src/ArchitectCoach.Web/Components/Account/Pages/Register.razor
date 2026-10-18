@@ -43,15 +43,19 @@
                 <label for="Input.ConfirmPassword">Confirm Password</label>
                 <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
             </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+            <div class="form-check mb-3">
+                <InputCheckbox @bind-Value="Input.AgeConfirmed" id="Input.AgeConfirmed" class="form-check-input" aria-required="true" />
+                <label class="form-check-label" for="Input.AgeConfirmed">I am 16 or older</label>
+                <ValidationMessage For="() => Input.AgeConfirmed" class="text-danger" />
+            </div>
+            @* Notice at collection (CCPA) and GDPR transparency, right where the data is collected. *@
+            <p class="small" id="collection-notice">
+                We store only your email address (and a securely hashed password) to run your account,
+                plus the projects you create. No tracking, no ads, and we never sell or share your data.
+                You can download or delete everything at any time. Details: <a href="privacy">privacy notice</a>.
+            </p>
+            <button type="submit" class="w-100 btn btn-lg btn-primary" aria-describedby="collection-notice">Register</button>
         </EditForm>
-    </div>
-    <div class="col-lg-4 col-lg-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
     </div>
 </div>
 
@@ -155,5 +159,9 @@
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
+
+        [Range(typeof(bool), "true", "true", ErrorMessage = "You must be 16 or older to create an account.")]
+        [Display(Name = "Age confirmation")]
+        public bool AgeConfirmed { get; set; }
     }
 }
