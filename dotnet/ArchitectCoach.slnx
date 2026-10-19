@@ -3,6 +3,7 @@
     <Project Path="src/ArchitectCoach.Web/ArchitectCoach.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/ArchitectCoach.A11yTests/ArchitectCoach.A11yTests.csproj" />
     <Project Path="tests/ArchitectCoach.IntegrationTests/ArchitectCoach.IntegrationTests.csproj" />
     <Project Path="tests/ArchitectCoach.Tests/ArchitectCoach.Tests.csproj" />
   </Folder>

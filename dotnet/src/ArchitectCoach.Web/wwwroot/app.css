@@ -156,3 +156,40 @@ h1:focus { outline: none; }
     padding: 1rem 0 2rem;
 }
 .site-footer nav { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+
+/* Target size (WCAG 2.5.8): navigation links get at least a 24px hit area, ~32px here. */
+.skip-link,
+.site-brand,
+.site-links a,
+.site-link-button,
+.site-footer a,
+.project-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+}
+.skip-link { padding: .5rem 1rem; }
+
+/* Contrast (WCAG 1.4.3): Bootstrap's default grey (#6c757d), red (#dc3545), and link blue
+   (#0d6efd) fall just under 4.5:1 on the off-white page background. Use darker equivalents. */
+.nav-link { color: var(--ac-link); }
+.nav-link:hover, .nav-link:focus { color: #083f78; }
+.text-secondary, .text-muted, .form-text { color: var(--ac-muted) !important; }
+.text-danger { color: #b91c1c !important; }
+.btn-outline-secondary {
+    --bs-btn-color: #44403c;
+    --bs-btn-border-color: #44403c;
+    --bs-btn-hover-bg: #44403c;
+    --bs-btn-hover-border-color: #44403c;
+    --bs-btn-active-bg: #292524;
+}
+.btn-outline-danger {
+    --bs-btn-color: #b91c1c;
+    --bs-btn-border-color: #b91c1c;
+    --bs-btn-hover-bg: #b91c1c;
+    --bs-btn-hover-border-color: #b91c1c;
+}
+
+/* Reflow (WCAG 1.4.10): grid children default to min-width:auto, so a wide table inside one
+   (it scrolls in .table-responsive) would otherwise force the whole page wider than the screen. */
+.project-shell > * { min-width: 0; }

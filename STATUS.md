@@ -186,11 +186,32 @@ See [ADR-0011](docs/decisions/0011-privacy-by-design.md).
   `Site:HostingRegion` (the notice shows "[not yet configured]" until then, and Production logs a
   critical warning), and get a short legal review of `/privacy`.
 
+## Added 2026-10-18: Phase 5 of the .NET rewrite (accessibility)
+
+New `dotnet/tests/ArchitectCoach.A11yTests` (13 tests): the real app on Kestrel, driven by
+Playwright in the **installed Microsoft Edge** (no browser download), using Deque axe-core.
+- **axe-core WCAG 2.0/2.1/2.2 A+AA rules on 30 pages** (signed out and in, every `<details>`
+  expanded), with zero violations. A guard fails the scan if stylesheets don't load: the first
+  run scanned unstyled pages because static web assets aren't wired up outside Development
+  (fixed with `UseStaticWebAssets()` in the test host).
+- **Keyboard:** the skip link is first in tab order and works; every control is reachable by Tab
+  with a visible focus indicator. **Reflow:** 7 pages at 320px have no horizontal page scroll.
+- **Fixed:** target size of nav links (WCAG 2.5.8); contrast of Bootstrap's grey/red/link blue
+  on the off-white background (1.4.3); the interview page overflowed at 320px because the compare
+  table stretched its grid column (1.4.10); the not-found page had no title; the login "Remember
+  me" label now uses explicit `for`/`id`.
+- **By design:** signed-out requests to unknown URLs redirect to sign-in (the fallback policy
+  covers requests that match no endpoint), which avoids revealing which URLs exist. Signed in,
+  unknown URLs return a real 404 page.
+- **Still manual before launch:** a screen-reader pass with NVDA on Windows over the main flows.
+  The accessibility statement says this is done by hand, not automated.
+- Full suite: 30 unit + 37 integration + 13 accessibility = **80 tests passing**.
+
 ## Git state
 
 `b1c2ffb` (Discuss with AI + Dev Kit) and `fc871a4` (assessments + Spec Kit) are pushed to
 `origin/master` (`RobKraft/ArchitectCoach`), as is `62d1c3d` (rewrite plan, Phase 0 probe,
-Phase 2a content) and the Phase 1 commit (.NET skeleton + security). Phase 2b (content + wizard) is committed and pushed too. So is Phase 3 (Spec Kit + Dev Kit download). So is Phase 4 (privacy features).
+Phase 2a content) and the Phase 1 commit (.NET skeleton + security). Phase 2b (content + wizard) is committed and pushed too. So is Phase 3 (Spec Kit + Dev Kit download). So is Phase 4 (privacy features). So is Phase 5 (accessibility).
 `.claude/launch.json` is deliberately left uncommitted.
 
 `archiver` is pinned to **v7.0.1**, not v8: v8's ESM `exports` field breaks Next.js's webpack
@@ -244,7 +265,7 @@ re-derived:
 
 ## Not yet done — pick up here
 
-1. **Phase 5 of the .NET rewrite** (accessibility: axe tests on every page, manual keyboard/screen-reader pass, fix template issues like the "Remember me" checkbox labeled "True").
+1. **Phase 6 of the .NET rewrite** (launch): set Site:* config, legal review of /privacy, NVDA screen-reader pass, run the Phase 0 probe on SmarterASP, deploy, SPF/DKIM, production smoke test, then retire the Next.js code.
    the results in the rewrite plan.
 2. Replicate the AI Dev Kit's tailored content for the other 4 project types (Static site with a
    blog, Site with a backend/database, Phone app, Desktop app) — same pattern as
